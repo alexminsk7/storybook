@@ -19,11 +19,11 @@ export const Default: Story = {
   render: (args) => (
     <Card {...args} className="w-80">
       <CardHeader>
-        <CardTitle>Notifications</CardTitle>
-        <CardDescription>You have 3 unread messages.</CardDescription>
+        <CardTitle>Card title</CardTitle>
+        <CardDescription>Card description goes here.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm">Card is a static container — the design system defines no hover/active tokens for it.</p>
+        <p className="text-sm">Content goes here. Card is a static container — the design system defines no hover/active tokens for it.</p>
       </CardContent>
     </Card>
   ),
@@ -33,17 +33,17 @@ export const WithFooter: Story = {
   render: (args) => (
     <Card {...args} className="w-80">
       <CardHeader>
-        <CardTitle>Create project</CardTitle>
-        <CardDescription>Deploy your new project in one click.</CardDescription>
+        <CardTitle>Card title</CardTitle>
+        <CardDescription>Card description goes here.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm">Project settings go here.</p>
+        <p className="text-sm">Content goes here.</p>
       </CardContent>
       <CardFooter className="gap-2">
         <Button variant="outline" size="sm">
           Cancel
         </Button>
-        <Button size="sm">Deploy</Button>
+        <Button size="sm">Confirm</Button>
       </CardFooter>
     </Card>
   ),
@@ -53,7 +53,7 @@ export const HeaderOnly: Story = {
   render: (args) => (
     <Card {...args} className="w-80">
       <CardHeader>
-        <CardTitle>Minimal card</CardTitle>
+        <CardTitle>Card title</CardTitle>
         <CardDescription>Header content only, no body.</CardDescription>
       </CardHeader>
     </Card>

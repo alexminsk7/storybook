@@ -22,10 +22,14 @@ const buttonVariants = cva(
           'bg-button-background-destructive text-button-foreground-destructive hover:bg-button-background-destructive-hover disabled:bg-button-background-disabled disabled:text-button-foreground-disabled',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-8 rounded-4 px-3 text-xs',
-        lg: 'h-11 rounded-8 px-8',
-        icon: 'h-10 w-10',
+        // h-10/h-11/w-10 etc. are ambiguous here: our custom `spacing` scale (0-12) silently
+        // overrides Tailwind's default height/width scale (which derives from `spacing` by
+        // default) for the SAME keys, so bare `h-10` resolves to --space-10 (48px), not the
+        // 40px a reader would expect. Using the CSS var directly removes all ambiguity.
+        default: 'h-[var(--height-44)] px-4 py-2', // confirmed against Figma Dev Mode: H 44
+        sm: 'h-[var(--height-8)] rounded-4 px-3 text-xs', // 32px
+        lg: 'h-[var(--height-48)] rounded-8 px-8', // 48px — not yet verified against Figma
+        icon: 'h-[var(--height-44)] w-[var(--height-44)]', // square, matches default height
       },
     },
     defaultVariants: {
