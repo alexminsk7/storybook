@@ -91,6 +91,7 @@
   --radius-4: 4px;
   --radius-8: 8px;
   --radius-12: 12px;
+  --radius-14: 14px;
   --radius-16: 16px;
   --radius-24: 24px;
   --radius-32: 32px;
@@ -144,7 +145,10 @@
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
-  --font-family-sans: Inter;
+  /* Every text layer in the Figma file renders in Geist, not Inter — the Inter value this
+     variable was exported with is not what the design actually uses. "Geist Sans" is the
+     family name @fontsource/geist-sans registers; "Geist" alone would not resolve. */
+  --font-family-sans: 'Geist Sans';
   --font-family-mono: Geist Mono;
   --font-family-sans-serif: Nunito Sans;
   --font-family-monospace: Jetbrains Mono;
@@ -248,14 +252,14 @@
   --max-width-screen-lg: 1024px;
   --max-width-screen-xl: 1280px;
   --max-width-screen-2xl: 1536px;
-  --opacity-0: 0;
-  --opacity-10: 10;
-  --opacity-20: 20;
-  --opacity-40: 40;
-  --opacity-50: 50;
-  --opacity-60: 60;
-  --opacity-80: 80;
-  --opacity-100: 100;
+  --opacity-0: 0%;
+  --opacity-10: 10%;
+  --opacity-20: 20%;
+  --opacity-40: 40%;
+  --opacity-50: 50%;
+  --opacity-60: 60%;
+  --opacity-80: 80%;
+  --opacity-100: 100%;
   --background: var(--color-neutral-0);
   --foreground: var(--color-neutral-950);
   --card: var(--color-neutral-0);
@@ -329,7 +333,7 @@
   --button-icon: var(--muted-foreground);
   --card-background: var(--card);
   --card-border: var(--border);
-  --card-foreground: var(--card-foreground);
+  --card-foreground: var(--foreground);
   --collapsible-background: var(--background);
   --collapsible-border: var(--border);
   --collapsible-foreground: var(--foreground);
@@ -385,7 +389,7 @@
   --navigation-menu-foreground-inactive: var(--muted-foreground);
   --popover-background: var(--popover);
   --popover-border: var(--border);
-  --popover-foreground: var(--popover-foreground);
+  --popover-foreground: var(--foreground);
   --progress-indicator: var(--primary);
   --progress-track: var(--muted);
   --radio-background-checked: var(--primary);

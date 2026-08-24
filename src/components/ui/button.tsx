@@ -5,39 +5,45 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-8 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4',
+  // Pressed and Disabled are opacity-only in Figma (opacity-80 / opacity-60 on every one of the
+  // eight types, base colors unchanged) — not a swap to different background tokens. The
+  // --button-background-active/-disabled tokens exist in tokens.css but the component never
+  // binds them, so applying them here made Disabled render grey instead of a faded variant.
+  'inline-flex shrink-0 items-center justify-center gap-3 whitespace-nowrap rounded-8 text-sm font-medium leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.1)] transition-[color,background-color,opacity] outline-none focus-visible:ring-2 focus-visible:ring-ring active:opacity-80 disabled:opacity-60 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4',
   {
     variants: {
+      // Hover is the one state Figma does not document (its States are Default/Pressed/Disabled
+      // only), so it stays a web-only addition on top of the Figma-exact states.
       variant: {
-        default:
-          'bg-button-background text-button-foreground hover:bg-button-background-hover active:bg-button-background-active disabled:bg-button-background-disabled disabled:text-button-foreground-disabled',
+        default: 'bg-button-background text-button-foreground hover:bg-button-background-hover',
         secondary:
-          'bg-button-background-filled text-button-foreground-filled hover:opacity-90 active:opacity-80 disabled:bg-button-background-disabled disabled:text-button-foreground-disabled disabled:opacity-100',
+          'border border-button-border-outline bg-button-background-filled text-button-foreground-filled hover:bg-button-background-ghost-hover',
         outline:
-          'border border-button-border-outline bg-button-background-outline text-button-foreground-outline hover:bg-button-background-ghost-hover disabled:border-border disabled:text-button-foreground-disabled disabled:bg-button-background-outline',
+          'border border-button-border-outline bg-button-background-outline text-button-foreground-outline hover:bg-button-background-ghost-hover',
         outlinePrimary:
-          'border border-button-border-secondary bg-button-background-outline text-button-foreground-secondary hover:bg-button-background-ghost-hover disabled:border-border disabled:text-button-foreground-disabled disabled:bg-button-background-outline',
+          'border border-button-border-secondary bg-button-background-outline text-button-foreground-secondary hover:bg-button-background-ghost-hover',
         ghost:
-          'bg-transparent text-foreground hover:bg-button-background-ghost-hover disabled:text-button-foreground-disabled',
+          'bg-transparent text-button-foreground-outline shadow-none hover:bg-button-background-ghost-hover',
         ghostPrimary:
-          'bg-transparent text-button-foreground-ghost-primary hover:bg-button-background-ghost-hover disabled:text-button-foreground-disabled',
-        link: 'bg-transparent p-0 h-auto text-button-foreground-link underline-offset-4 hover:underline disabled:text-button-foreground-disabled disabled:no-underline',
+          'bg-transparent text-button-foreground-ghost-primary shadow-none hover:bg-button-background-ghost-hover',
+        link: 'bg-transparent text-button-foreground-link underline underline-offset-4 shadow-none hover:bg-button-background-ghost-hover',
         destructive:
-          'bg-button-background-destructive text-button-foreground-destructive hover:bg-button-background-destructive-hover disabled:bg-button-background-disabled disabled:text-button-foreground-disabled',
+          'bg-button-background-destructive text-button-foreground hover:bg-button-background-destructive-hover',
       },
       size: {
         // h-10/h-11/w-10 etc. are ambiguous here: our custom `spacing` scale (0-12) silently
         // overrides Tailwind's default height/width scale (which derives from `spacing` by
         // default) for the SAME keys, so bare `h-10` resolves to --space-10 (48px), not the
         // 40px a reader would expect. Using the CSS var directly removes all ambiguity.
-        default: 'h-[var(--height-44)] px-4 py-2', // confirmed against Figma Dev Mode: H 44
+        // H44 with --space-5 (16px) horizontal / --space-3 (8px) vertical padding, per Figma.
+        default: 'h-[var(--height-44)] px-5 py-3',
         // NOTE: this height scale is literal-pixel (height-N = Npx), not a step scale like
         // Tailwind's own default (where "8" conventionally means 32px). h-[var(--height-8)]
         // was wrong here for exactly that reason — it rendered an 8px-tall button whose own
         // text overflowed it, which is the Cancel/Confirm overlap bug. Fixed to height-32.
-        sm: 'h-[var(--height-32)] rounded-4 px-3 text-xs', // 32px — Figma's Button page has no sm/lg examples, best guess
-        lg: 'h-[var(--height-48)] rounded-8 px-8', // 48px — Figma's Button page has no sm/lg examples, best guess
-        icon: 'h-[var(--height-44)] w-[var(--height-44)]', // square, matches default height
+        sm: 'h-[var(--height-32)] rounded-4 px-4 py-2 text-xs', // Figma's Button page has no sm/lg examples, best guess
+        lg: 'h-[var(--height-48)] rounded-8 px-6 py-3', // Figma's Button page has no sm/lg examples, best guess
+        icon: 'h-[var(--height-44)] w-[var(--height-44)] p-0', // square, matches default height
       },
     },
     defaultVariants: {
