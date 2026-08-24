@@ -31,16 +31,17 @@ export const Default: Story = {};
 
 export const Active: Story = {
   name: 'Active (focus)',
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByPlaceholderText('Email'));
-  },
+  // :focus is a pseudo-class — forced via storybook-addon-pseudo-states, same reasoning
+  // as Button's Hover/Active (see button.stories.tsx).
+  parameters: { pseudo: { focus: true } },
 };
 
 export const Hover: Story = {
   name: 'Hover',
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.hover(canvas.getByPlaceholderText('Email'));
-  },
+  // No --input-border-hover token exists in the design system — Input intentionally has
+  // no distinct hover look, so this renders identically to Default. That's the real
+  // :hover state (forced via the pseudo-states addon), not a bug.
+  parameters: { pseudo: { hover: true } },
 };
 
 export const Disabled: Story = {

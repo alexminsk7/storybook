@@ -36,15 +36,16 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const Hover: Story = {
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.hover(canvas.getByRole('button'));
-  },
+  // userEvent.hover() only dispatches DOM mouse events — it does not move the browser's
+  // real cursor, so the CSS :hover pseudo-class this button's styling depends on never
+  // actually engages. storybook-addon-pseudo-states forces the pseudo-class directly by
+  // rewriting stylesheets, which works reliably in both story and docs view, and is what
+  // Chromatic's own docs recommend for snapshotting pseudo-states.
+  parameters: { pseudo: { hover: true } },
 };
 
 export const Active: Story = {
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.pointer({ keys: '[MouseLeft>]', target: canvas.getByRole('button') });
-  },
+  parameters: { pseudo: { active: true } },
 };
 
 export const Disabled: Story = {
