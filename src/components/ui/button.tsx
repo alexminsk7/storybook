@@ -27,8 +27,12 @@ const buttonVariants = cva(
         // default) for the SAME keys, so bare `h-10` resolves to --space-10 (48px), not the
         // 40px a reader would expect. Using the CSS var directly removes all ambiguity.
         default: 'h-[var(--height-44)] px-4 py-2', // confirmed against Figma Dev Mode: H 44
-        sm: 'h-[var(--height-8)] rounded-4 px-3 text-xs', // 32px
-        lg: 'h-[var(--height-48)] rounded-8 px-8', // 48px — not yet verified against Figma
+        // NOTE: this height scale is literal-pixel (height-N = Npx), not a step scale like
+        // Tailwind's own default (where "8" conventionally means 32px). h-[var(--height-8)]
+        // was wrong here for exactly that reason — it rendered an 8px-tall button whose own
+        // text overflowed it, which is the Cancel/Confirm overlap bug. Fixed to height-32.
+        sm: 'h-[var(--height-32)] rounded-4 px-3 text-xs', // 32px — not verified against Figma
+        lg: 'h-[var(--height-48)] rounded-8 px-8', // 48px — not verified against Figma
         icon: 'h-[var(--height-44)] w-[var(--height-44)]', // square, matches default height
       },
     },
