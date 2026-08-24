@@ -15,7 +15,11 @@ const buttonVariants = cva(
           'bg-button-background-filled text-button-foreground-filled hover:opacity-90 active:opacity-80 disabled:bg-button-background-disabled disabled:text-button-foreground-disabled disabled:opacity-100',
         outline:
           'border border-button-border-outline bg-button-background-outline text-button-foreground-outline hover:bg-button-background-ghost-hover disabled:border-border disabled:text-button-foreground-disabled disabled:bg-button-background-outline',
+        outlinePrimary:
+          'border border-button-border-secondary bg-button-background-outline text-button-foreground-secondary hover:bg-button-background-ghost-hover disabled:border-border disabled:text-button-foreground-disabled disabled:bg-button-background-outline',
         ghost:
+          'bg-transparent text-foreground hover:bg-button-background-ghost-hover disabled:text-button-foreground-disabled',
+        ghostPrimary:
           'bg-transparent text-button-foreground-ghost-primary hover:bg-button-background-ghost-hover disabled:text-button-foreground-disabled',
         link: 'bg-transparent p-0 h-auto text-button-foreground-link underline-offset-4 hover:underline disabled:text-button-foreground-disabled disabled:no-underline',
         destructive:
@@ -31,8 +35,8 @@ const buttonVariants = cva(
         // Tailwind's own default (where "8" conventionally means 32px). h-[var(--height-8)]
         // was wrong here for exactly that reason — it rendered an 8px-tall button whose own
         // text overflowed it, which is the Cancel/Confirm overlap bug. Fixed to height-32.
-        sm: 'h-[var(--height-32)] rounded-4 px-3 text-xs', // 32px — not verified against Figma
-        lg: 'h-[var(--height-48)] rounded-8 px-8', // 48px — not verified against Figma
+        sm: 'h-[var(--height-32)] rounded-4 px-3 text-xs', // 32px — Figma's Button page has no sm/lg examples, best guess
+        lg: 'h-[var(--height-48)] rounded-8 px-8', // 48px — Figma's Button page has no sm/lg examples, best guess
         icon: 'h-[var(--height-44)] w-[var(--height-44)]', // square, matches default height
       },
     },
