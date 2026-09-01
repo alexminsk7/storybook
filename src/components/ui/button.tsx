@@ -43,6 +43,7 @@ const buttonVariants = cva(
         // text overflowed it, which is the Cancel/Confirm overlap bug. Fixed to height-32.
         sm: 'h-[var(--height-32)] rounded-4 px-4 py-2 text-xs', // Figma's Button page has no sm/lg examples, best guess
         lg: 'h-[var(--height-48)] rounded-8 px-6 py-3', // Figma's Button page has no sm/lg examples, best guess
+        xl: 'h-[var(--height-56)] rounded-8 px-8 py-4', // no Figma frame either — per PRD, one step up from lg
         icon: 'h-[var(--height-44)] w-[var(--height-44)] p-0', // square, matches default height
       },
     },

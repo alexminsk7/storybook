@@ -16,7 +16,7 @@ const meta = {
     },
     size: {
       control: 'select',
-      options: ['default', 'sm', 'lg', 'icon'],
+      options: ['default', 'sm', 'lg', 'xl', 'icon'],
     },
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
@@ -82,4 +82,8 @@ export const Link: Story = {
 
 export const Destructive: Story = {
   args: { variant: 'destructive' },
+};
+
+export const XL: Story = {
+  args: { size: 'xl' },
 };
