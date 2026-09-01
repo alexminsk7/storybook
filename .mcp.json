@@ -1,0 +1,17 @@
+{
+	"mcpServers": {
+		"github": {
+			"type": "stdio",
+			"command": "C:\\Users\\ottob\\.local\\bin\\github-mcp-server\\github-mcp-server.exe",
+			"args": ["stdio"],
+			"env": {
+				"GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}"
+			}
+		},
+		"components-lister": {
+			"type": "stdio",
+			"command": "node",
+			"args": ["C:\\Users\\ottob\\Documents\\Code\\storybook\\mcp-servers\\components-lister\\dist\\index.js"]
+		}
+	}
+}
