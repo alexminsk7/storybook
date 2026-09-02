@@ -1,5 +1,11 @@
+/*
+ * Tailwind v4. The theme is loaded through the v3-style config for backward
+ * compat: tailwind.config.cjs + tailwind.preset.cjs carry the non-linear
+ * spacing/radius scales and the full component-token colour map (generated from
+ * the Figma "Shadcn UI" variables). A pure @theme rewrite collides with v4's own
+ * --spacing-* / --radius-* namespaces, so @config stays until the token pipeline
+ * emits v4-native @theme output.
+ */
+@import 'tailwindcss';
 @import './tokens.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@config '../../tailwind.config.cjs';
