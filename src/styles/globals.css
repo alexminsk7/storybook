@@ -9,3 +9,10 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @config '../../tailwind.config.cjs';
+
+/* Storybook renders stories straight into the iframe body — carry the themed
+   surface so light/dark and the brand overlay are visible in stories and docs. */
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
