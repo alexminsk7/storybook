@@ -1,32 +1,60 @@
-# React + TypeScript + Vite
+# shadcn-ui-storybook
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A Storybook that mirrors the Figma **"Shadcn UI"** design system in code, themeable so one
+component set serves two products:
 
-Currently, two official plugins are available:
+| Brand | Colour | Product |
+| --- | --- | --- |
+| `tornado` (default) | orange `#d63f00` | [Tornado](https://github.com/alexminsk7/tornado-app) — Taekwondo club PWA |
+| `applicant` | blue `#136cff` | [AppLicant](https://github.com/alexminsk7/applicant) — AI mock interviews |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Brand is a token. `[data-brand='applicant']` rebinds four semantic tokens (`--primary` and
+friends) and the whole `--button-* / --badge-* / --switch-*` layer follows. Switch **Theme**
+(light/dark) and **Brand** independently from the Storybook toolbar.
 
-## React Compiler
+**Live:** <https://storybook-dqk.pages.dev>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the Oxlint configuration
+- Storybook 10 · `@storybook/react-vite` · React 19 · Vite 8
+- **Tailwind v4** via `@config` (the token scale is non-linear — see [`src/styles/globals.css`](src/styles/globals.css))
+- tokens: `src/styles/tokens.css` — primitives → semantic → per-component, generated from Figma variables
+- addons: a11y, docs, vitest, MCP, `storybook-addon-pseudo-states` (real hover/active/focus stories)
+- Chromatic for visual review
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Run
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm ci
+npm run storybook        # http://localhost:6006
+npm run build-storybook  # -> storybook-static/
+npm run lint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Components
+
+`src/components/ui/` — `button`, `card`, `input`. Each has a `.stories.tsx` with a story per
+variant and per state. `Foundations/Overview` shows all four theme × brand combinations.
+
+The Button contract, its Figma mapping, and the spec of record live in [`SPEC.md`](SPEC.md).
+
+## CI / deploy
+
+- `.github/workflows/ci.yml` — `lint` + `build-storybook` on every PR (Node from `.node-version`)
+- `.github/workflows/chromatic.yml` — Chromatic on every push and PR
+- Cloudflare Pages — Git integration, `npm run build-storybook` → `storybook-static/`, a
+  `*.pages.dev` preview per branch
+
+## Agent team
+
+Built with a `LEAD` + five subagents (`spec / builder / reviewer / storybook / shipper`) in
+[`.claude/agents/`](.claude/agents/). See [`agents.html`](agents.html) for the pipeline and the
+hand-off points.
+
+## Not done yet
+
+- AppLicant / Tornado still keep their own copies of these components — consuming this repo as an
+  installed package needs a library build + `exports`.
+- Code Connect (`.figma.ts`) needs a Figma Organization plan.
+- Scoped theming (a dark island on a light page) needs the component-token layer duplicated into
+  the `[data-theme='dark']` block; the global toolbar/app-level switch works fully.
