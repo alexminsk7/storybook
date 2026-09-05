@@ -1,6 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '../components/ui/breadcrumb'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -25,6 +33,21 @@ type Story = StoryObj<typeof meta>
 function Showcase() {
   return (
     <div className="flex flex-col gap-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#">Components</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="flex flex-wrap items-center gap-3">
         <Button>Primary</Button>
         <Button variant="secondary">Secondary</Button>

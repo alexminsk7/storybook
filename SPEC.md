@@ -338,3 +338,110 @@ Compound parts (Radix `Root`/`Item`/`Trigger`/`Content`):
 - Code Connect (`.figma.ts`) — same blocker as Button (needs a Figma Organization plan)
 - actual implementation (`accordion.tsx`, `accordion.stories.tsx`) — this is the SPEC section
   only; no component code was written per instruction
+
+## Component — `Breadcrumb`
+
+Source: `src/components/ui/breadcrumb.tsx` (not yet built), stories:
+`src/components/ui/breadcrumb.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`101:424`**
+"Breadcrumb" — outer documentation-page chrome ignored below. The reusable component set lives
+at **`665:2036`**, a real component set with one `Type` variant property and five values:
+`custom_seperator` (**`101:634`**), `dropdown` (**`424:448`**), `collapsed` (**`101:633`**),
+`link_component` (**`101:632`**), `responsive` (**`101:631`**). Verified live via
+`get_design_context` on 2026-09-05.
+
+Figma's own component description: *"Hierarchical navigation trail. Type covers collapsed
+overflow, custom separators, dropdown grouping, and responsive behavior."*
+
+**These 5 `Type` values are not a style-variant axis — they are five different USAGE EXAMPLES of
+one flexible compound-parts API, not five branches of a component-level `type` prop.** None of
+them changes color/size/font; each only changes which children are present (a slash separator
+instead of the default chevron, an ellipsis for collapsed overflow, a dropdown-styled item, plain
+vs. longer example labels). This matches real shadcn/ui's own Breadcrumb documentation almost
+exactly — their docs literally group examples under headings "Custom separator" / "Dropdown" /
+"Collapsed" / "Link component", the same four names Figma's `Type` values echo (`responsive` is a
+Figma-only fifth example, demonstrating the same collapsed-overflow pattern with different
+content, not a sixth structural shape). **No `type` prop is built** — the five Figma instances
+become five Storybook stories instead, demonstrating composition, not a switch statement.
+
+Confirmed structural/token facts from the live pull:
+
+- text: every label is `text-sm font-normal leading-5` (14px/400/20px) — links and the trailing
+  "ellipsis-truncated" labels use `text-[var(--muted-foreground)]`, the final/current item uses
+  `text-[var(--foreground)]` (still `font-normal`, not bold — matches real shadcn's own
+  `BreadcrumbPage` exactly, no divergence to flag here for once)
+- list gap: `gap-[var(--gap-1\,5,6px)]` (Figma's escaped `1,5` = "1.5", fallback 6px). **This is
+  the first spacing value in this component library that needs no digit-suffix correction**: this
+  project's `spacing` scale override only replaces the integer keys `0`–`12`; Tailwind's own
+  built-in fractional key `1.5` (0.375rem = 6px) is untouched by the override and already equals
+  Figma's fallback exactly — `gap-1.5` is correct as literally written, verify this claim in the
+  builder step by checking `tailwind.preset.cjs`'s `spacing` object only defines integer keys
+  before trusting it, don't assume from this note alone
+- separator/ellipsis icons: 14×14. Same reasoning as the gap above — `size-3.5` (Tailwind's
+  built-in 0.875rem = 14px) is untouched by this project's integer-only spacing override and
+  already matches; verify the same way before trusting it
+- the dropdown item's chevron-down icon is 16×16 — **this one does need the usual correction**:
+  it's a whole-number Figma size, not a fractional one, so the established "`size-4` = 12px here,
+  `size-5` = 16px" rule applies — use `size-5`, not `size-4`
+- the dropdown item's internal gap (icon-to-text) is `gap-[var(--space-2,4px)]` — Figma named this
+  one directly with this project's own real token name, no correction needed, use `gap-2`
+  (matches `--space-2` = 4px)
+- default separator = `lucide/chevron-right`; `custom_seperator`/`dropdown` override it with
+  `lucide/slash` instead — confirms the separator is swappable per-instance, not fixed
+- the `dropdown` instance only demonstrates the **visual affordance** (a chevron-down icon next to
+  a breadcrumb item) — no open/closed state, menu items, or interaction is shown or demoed
+  anywhere in the pull; not wiring real dropdown-menu behavior (`DropdownMenu` is a separate,
+  not-yet-built component in the backlog) — see Out of scope
+- `collapsed`/`responsive` both insert a bare `lucide/ellipsis` icon (no visible click target/box
+  around it) to represent truncated overflow items
+
+### Contract
+
+No new dependency for the icons/structure — plain HTML elements (`nav`/`ol`/`li`/`a`/`span`), same
+category as `Alert`/`Badge`. `BreadcrumbLink` reuses `@radix-ui/react-slot` (already a dependency,
+used by `Button`) for `asChild` support, matching real shadcn/ui's own API — needed for router
+`Link` compatibility, not a speculative addition.
+
+| Part | Element | Notes |
+| --- | --- | --- |
+| `Breadcrumb` | `nav` | `aria-label="breadcrumb"` — code-level requirement, not shown in Figma (Figma has no ARIA concept) |
+| `BreadcrumbList` | `ol` | `flex flex-wrap items-center gap-1.5 break-words text-sm text-[var(--muted-foreground)]` |
+| `BreadcrumbItem` | `li` | `inline-flex items-center gap-1.5` |
+| `BreadcrumbLink` | `a` (or `Slot` via `asChild`) | `text-[var(--muted-foreground)] hover:text-[var(--foreground)]` — hover is a code-only addition, Figma shows no hover state (same precedent as every prior interactive-adjacent component) |
+| `BreadcrumbPage` | `span` | `role="link" aria-disabled="true" aria-current="page" font-normal text-[var(--foreground)]` — the final, non-link item; `role="link"` tells assistive tech it visually reads as a link even though it isn't interactive (matches real shadcn/ui's own implementation — an omission in an earlier draft of this SPEC, caught during the builder step) |
+| `BreadcrumbSeparator` | `li` | `role="presentation" aria-hidden="true"`; default child is a baked-in inline chevron-right svg (`size-3.5`) — matches `accordion.tsx`'s own baked-in chevron pattern; consumer can override by passing a different child (e.g. the slash icon) |
+| `BreadcrumbEllipsis` | `span` | `role="presentation" aria-hidden="true"`; bare `size-3.5` ellipsis icon plus a `sr-only` "More" text node — the `sr-only` text is a code-level a11y requirement (Figma's icon is silent to assistive tech on canvas, a real one needs an accessible name) |
+
+- no `size`/`variant` prop on any part — Figma shows one fixed text size/weight throughout every
+  example
+- the dropdown item is composed from existing parts (`BreadcrumbItem` + `BreadcrumbLink` + a
+  chevron-down icon child), not a new named sub-component
+
+### Accessibility
+
+- `nav[aria-label="breadcrumb"]` and `BreadcrumbPage`'s `aria-current="page"`/`aria-disabled` are
+  code-level requirements matching real shadcn/ui's own accessible implementation — Figma has no
+  ARIA concept, none of this is visible on canvas
+- `BreadcrumbSeparator`/`BreadcrumbEllipsis` are `aria-hidden` — decorative, screen readers should
+  skip them; `BreadcrumbEllipsis` still needs its `sr-only` "More" text so an icon-only visual
+  isn't completely silent if a screen reader does land on it via other navigation
+- `BreadcrumbLink` is a real `<a>` (or a real link via `asChild`) — keyboard-focusable and
+  activatable by default, no custom keyboard handling needed
+- reduced-motion: not applicable — no transitions or animations anywhere in this component
+
+### Out of scope
+
+- real dropdown-menu behavior (open/close, keyboard nav, menu items) for the `dropdown` example —
+  only the visual affordance (chevron-down icon) is confirmed in Figma; wiring an actual
+  `DropdownMenu` is that component's own future scope, not Breadcrumb's
+- a visible/invisible larger tap-target box around `BreadcrumbEllipsis` (real shadcn/ui wraps it
+  in a `size-9` hit area) — Figma shows a bare icon with no surrounding box; not inventing one
+- automatic collapsing logic (deciding *when* to show an ellipsis based on available width) — both
+  `collapsed` and `responsive` are static, pre-collapsed examples; no responsive-measurement code
+  is specified here
+- Code Connect (`.figma.ts`) — same blocker as every prior component
+- actual implementation (`breadcrumb.tsx`, `breadcrumb.stories.tsx`) — this is the SPEC section
+  only; no component code was written per instruction
