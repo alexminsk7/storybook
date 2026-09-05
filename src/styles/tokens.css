@@ -286,7 +286,7 @@
   --destructive-background: var(--color-alpha-red-600-10);
   --success-foreground: var(--color-green-500);
   --success-background: var(--color-alpha-green-500-10);
-  --badge-foreground-destructive: var(--color-white);
+  --badge-foreground-destructive: var(--destructive-foreground);
   --button-background-active: var(--color-orange-800);
   --button-background-destructive-hover: var(--color-red-700);
   --button-background-hover: var(--color-orange-700);

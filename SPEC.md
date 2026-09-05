@@ -338,3 +338,131 @@ Compound parts (Radix `Root`/`Item`/`Trigger`/`Content`):
 - Code Connect (`.figma.ts`) — same blocker as Button (needs a Figma Organization plan)
 - actual implementation (`accordion.tsx`, `accordion.stories.tsx`) — this is the SPEC section
   only; no component code was written per instruction
+
+## Component — `Badge`
+
+Source: `src/components/ui/badge.tsx` (not yet built), stories:
+`src/components/ui/badge.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`665:2024`**
+"Badge", a real Figma **component set** (unlike Alert's three loose symbols) with one genuine
+`Type` variant property and 10 real values. Verified live via `get_design_context` on
+2026-09-05, which returns Figma's own generated TS union type verbatim:
+`"Default" | "Default_number" | "Destructive" | "Destructive_fill" | "Outline" | "Secondary" |
+"Secondary_icon" | "Secondary_number" | "Success" | "Info"`.
+
+Figma's own component description: *"Small inline label for status, count, or category. Type
+sets the color/semantics."* Per this project's already-established rule from the earlier
+Sonner/Toast and Table/Navigation-Menu naming investigation ("if Figma and generic shadcn docs
+disagree, Figma is the contract — generic docs are 6 variants, Figma has 10"), **all 10 Figma
+values are the contract**, not the smaller stock shadcn set.
+
+Confirmed structural/token facts from the live pull (container is always
+`inline-flex items-center justify-center rounded-full`):
+
+| Figma `Type` | code `variant` | bg token | fg token | height | note |
+| --- | --- | --- | --- | --- | --- |
+| Default | `default` | `--badge-background-default` | `--badge-foreground-default` | 22px | solid brand fill |
+| Success | `success` | `--badge-background-success` | `--badge-foreground-success` | 22px | soft/tinted |
+| Secondary | `secondary` | `--badge-background-secondary` | `--badge-foreground-secondary` | 22px | neutral fill |
+| Destructive | `destructive` | `--badge-background-destructive-soft` | `--badge-foreground-destructive` | 22px | soft/tinted — see token note below |
+| Outline | `outline` | none (no `bg-*` class in the pull at all — transparent) | `--badge-foreground-outline` | 22px | border only |
+| Secondary_icon | `secondaryIcon` | `--badge-background-default` | `--badge-foreground-default` | 22px | **name drift**: styled identically to `default` (brand fill), not `secondary` — see below |
+| Default_number | `defaultNumber` | `--badge-background-default` | `--badge-foreground-default` | 20px | solid fill, shorter height |
+| Destructive_fill | `destructiveFill` | `--badge-background-destructive` | `--badge-foreground-default` | 20px | **solid** red fill (vs. `destructive`'s soft tint) — reuses the light `foreground-default` text token for contrast on a dark fill, same as `default`/`defaultNumber` |
+| Secondary_number | `secondaryNumber` | none (border only, like `outline`) | `--badge-foreground-outline` | 20px | monospace label font (`font-family-mono`), smaller padding — see below |
+| Info | `info` | `--badge-background-info` | `--badge-foreground-info` | 22px | soft/tinted brand |
+
+- **`--badge/foreground-destructive-soft` naming artifact**: Figma's raw pull literally names the
+  `destructive` variant's text color `var(--badge\/foreground-destructive-soft, #e7000b)` — a
+  variable name containing an escaped slash, which does not exist as a real token in
+  `tokens.css`. The fallback value (`#e7000b`) is value-identical to the token that **does**
+  exist, `--badge-foreground-destructive` (chains to `--destructive-foreground` →
+  `--color-red-600` = `#e7000b`) — use the real, existing token; this is a Figma internal-path
+  export glitch, not a missing token
+- padding: every variant except `Secondary_number` uses `px-3 py-1` (Figma's raw pull names these
+  `--space-3`/`--space-1` directly, with fallbacks 8px/2px that **already match** this project's
+  real `--space-3`(8px)/`--space-1`(2px) — the first component where Figma's own variable names
+  need no digit-suffix correction). `Secondary_icon` additionally has a 4px gap between its icon
+  and label — this project's `--space-2` (4px), so Tailwind `gap-2`, **not** `gap-1` (which is
+  `--space-1` = 2px here) — an editing slip in an earlier draft of this SPEC wrote `gap-1` for a
+  4px value, caught and corrected during the builder step
+- `Secondary_number`'s padding is smaller and **does** need the usual digit-suffix correction:
+  raw pull gives `px-[var(--px-1,4px)]` / `py-[var(--py-0.5,2px)]` — 4px is this project's
+  `--space-2` (not `--space-1`, which is 2px) and 2px is `--space-1` — use `px-2 py-1`, not a
+  literal copy of the raw digit suffixes
+- height: 22px has no exact token in the `--height-*` scale (jumps `20`→`24`) — use a literal
+  `h-[22px]`, there is nothing to snap to. The three 20px variants (`defaultNumber`,
+  `destructiveFill`, `secondaryNumber`) **do** have an exact token, `--height-20`
+- text: `text-xs font-medium leading-4` (12px / 500 / 16px — `leading-4` now resolves correctly
+  to `--line-height-4` thanks to the project-wide line-height fix already shipped). `secondary
+  Number` uses `font-family-mono` (Geist Mono) instead of the default sans, everything else uses
+  the default sans — the only variant with a non-default font family
+- **`Secondary_icon` name drift, confirmed not a copy-paste in the SPEC sense but a real Figma
+  authoring inconsistency**: it is visually `default`-colored (brand orange fill), not
+  `secondary`-colored, despite its name — same class of drift as Button's Figma "Secondary" =
+  code `outlinePrimary`. Its only real distinguishing feature vs. plain `default` is the leading
+  16×16 `lucide/circle-check` icon + `gap-1` + the example label "Verified" (not "Label" like
+  every other example) — kept as its own contract value (matching Figma's real 10-value enum
+  1:1, per the already-established "Figma's full set is the contract" decision for Badge), but
+  the icon+gap treatment is scoped to this one variant, not generalized to "every variant accepts
+  an optional icon" (no other of the 10 examples shows one)
+
+**Three real bugs found and fixed while building this component, none part of Badge's own
+contract but all blocking it from rendering correctly:**
+
+1. `tokens.css` had `--badge-foreground-destructive: var(--color-white)` — white text, apparently
+   copy-pasted from the solid-fill button pattern, but this token is actually consumed by the
+   `destructive` **soft/tinted** badge background, not a solid fill. Confirmed via live computed
+   styles during the storybook step: white text on a pale pink tint is barely readable. Fixed to
+   `var(--destructive-foreground)` (the same solid red already used correctly by sibling tokens
+   like `--alert-border-destructive`/`--alert-foreground-destructive`), matching what this SPEC
+   and `badge.tsx` both already assumed it did.
+2. `--font-family-mono: Geist Mono` had no matching font asset anywhere in the repo —
+   `@fontsource/geist-mono` was never installed and `.storybook/preview.tsx` only imports Geist
+   Sans weights. Confirmed via `document.fonts` (no Geist Mono face registered) and Canvas
+   glyph-width measurement (proportional, not monospace) that `secondaryNumber`'s label was
+   silently falling back to the browser default font. Fixed: added `@fontsource/geist-mono` as a
+   dependency and imported its `400`/`500` weights (the only weights this repo currently uses) in
+   `preview.tsx`, mirroring the existing Geist Sans import pattern.
+3. Tailwind v4's automatic whole-project content scan (no `@source` restriction existed in
+   `globals.css`) was picking up this very SPEC's own Figma-raw-value prose strings (e.g. an
+   earlier draft's `var(--py-0.5,2px)`) as candidate utility classes and choking on the invalid
+   `--py-0.5` custom-property syntax, producing a Lightning CSS build warning. Fixed once,
+   project-wide, with `@source not '../../SPEC.md';` in `globals.css` — SPEC.md is documentation,
+   never a real class source, and will keep quoting raw Figma variable names in future component
+   sections
+
+### Contract
+
+No new dependency — `Badge` is a plain styled element (`<span>`), not a Radix primitive, same
+category as `Alert`/`Card`.
+
+| Part | Element | Notes |
+| --- | --- | --- |
+| `Badge` | `span` | `variant` prop, one of the 10 values in the table above; default `default`; content via `children` (this project's existing convention for text content, e.g. `Button`/`Alert`, not Figma's own generated `label` string-prop shape) |
+
+- `secondaryIcon`'s icon is a plain consumer-supplied child (e.g. an inline `<svg>`), same
+  free-form-icon pattern already established for `Alert` — not a dedicated icon prop
+- no `size` prop — Figma shows one fixed size per variant (22px or 20px, driven by which variant,
+  not a separate size axis)
+
+### Accessibility
+
+- `Badge` renders no interactive semantics — it is not a button or link in any of the 10
+  examples; nothing to focus or keyboard-navigate
+- color is never the only signal within a single badge — each variant always pairs its color with
+  visible text (or icon+text for `secondaryIcon`), so no additional non-color affordance is needed
+
+### Out of scope
+
+- generalizing the icon+`gap-1` treatment to every variant — only `secondaryIcon` demonstrates it
+- correcting `Secondary_icon`'s color-vs-name drift — kept as Figma names it, drift documented
+  above (same precedent as Button's Secondary/`outlinePrimary` drift)
+- a numeric-count-specific API (e.g. auto-formatting large numbers) for `defaultNumber`/
+  `secondaryNumber` — Figma shows static example text only, not a numeric-formatting contract
+- Code Connect (`.figma.ts`) — same blocker as every prior component
+- actual implementation (`badge.tsx`, `badge.stories.tsx`) — this is the SPEC section only; no
+  component code was written per instruction
