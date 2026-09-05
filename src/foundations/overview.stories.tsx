@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -42,6 +43,20 @@ function Showcase() {
           <Button size="sm">Confirm</Button>
         </CardContent>
       </Card>
+      <Accordion type="single" collapsible defaultValue="item-1" className="w-80">
+        <AccordionItem value="item-1">
+          <AccordionTrigger>Item one</AccordionTrigger>
+          <AccordionContent>
+            <p>Border and text follow the theme.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger>Item two</AccordionTrigger>
+          <AccordionContent>
+            <p>Placeholder content for item two.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }
