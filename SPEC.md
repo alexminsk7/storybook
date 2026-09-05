@@ -292,13 +292,19 @@ Compound parts (Radix `Root`/`Item`/`Trigger`/`Content`):
 | `AccordionTrigger` | `AccordionPrimitive.Trigger` | the clickable header row (Figma's "Button" node — not this repo's `Button`) |
 | `AccordionContent` | `AccordionPrimitive.Content` | the revealed answer panel |
 
-- `AccordionTrigger`: `flex items-center py-[var(--py-4,16px)] w-full border-b
+- `AccordionTrigger`: `flex items-center py-5 w-full border-b
   border-[var(--accordion-border,#e4e4e7)]`, label `text-sm font-medium leading-5
   text-[var(--accordion-foreground,#09090b)]`, 16×16 chevron rotating on open
   (e.g. `data-[state=open]:rotate-180`); border must be suppressed on the open item's trigger only
-  (border moves to the content panel per Figma)
-- `AccordionContent`: `border-b border-[var(--accordion-border)] flex flex-col gap-4 pb-4`,
-  paragraph text `text-sm font-normal leading-5 text-[var(--accordion-foreground,#09090b)]`
+  (border moves to the content panel per Figma). **`py-5`, not `py-4`**: Figma's raw pull cited
+  `var(--py-4, 16px)`, but that's Figma's own internal variable name, not this project's scale —
+  this project's Tailwind numeric key `4` maps to `--space-4` (12px); the key that actually
+  resolves to 16px is `5` (`--space-5`). Do not trust Figma's digit suffix to match this
+  project's Tailwind scale; match by the literal pixel value against `tokens.css` instead (same
+  class of bug as Button's height-scale gotcha)
+- `AccordionContent`: `border-b border-[var(--accordion-border)] flex flex-col gap-5 pb-5`
+  (not `gap-4`/`pb-4` — same 16px-vs-`--space-4`(12px) mismatch as above), paragraph text
+  `text-sm font-normal leading-5 text-[var(--accordion-foreground,#09090b)]`
 - no `size` prop/table — Figma shows one fixed size
 - states: rest (collapsed) / open (expanded) per Figma; hover/focus-visible/disabled are
   code-level requirements not shown as distinct Figma states (see Accessibility)
