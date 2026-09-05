@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion'
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -34,6 +35,16 @@ function Showcase() {
         <Button variant="destructive">Delete</Button>
       </div>
       <Input placeholder="you@example.com" />
+      <div className="flex items-center gap-3">
+        <Avatar>
+          <AvatarImage src="/this-avatar-does-not-exist.png" alt="Wendy Wonka" />
+          <AvatarFallback>WW</AvatarFallback>
+        </Avatar>
+        <Avatar shape="square">
+          <AvatarImage src="/this-avatar-does-not-exist.png" alt="Wendy Wonka" />
+          <AvatarFallback shape="square">WW</AvatarFallback>
+        </Avatar>
+      </div>
       <Card className="w-80">
         <CardHeader>
           <CardTitle>Card title</CardTitle>
