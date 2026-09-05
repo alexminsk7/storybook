@@ -304,6 +304,21 @@ module.exports = {
       "8xl": "var(--font-size-8xl)",
       "9xl": "var(--font-size-9xl)"
     },
+    "lineHeight": {
+      "3": "var(--line-height-3)",
+      "4": "var(--line-height-4)",
+      "5": "var(--line-height-5)",
+      "6": "var(--line-height-6)",
+      "7": "var(--line-height-7)",
+      "8": "var(--line-height-8)",
+      "9": "var(--line-height-9)",
+      "10": "var(--line-height-10)",
+      "12": "var(--line-height-12)",
+      "15": "var(--line-height-15)",
+      "18": "var(--line-height-18)",
+      "24": "var(--line-height-24)",
+      "32": "var(--line-height-32)"
+    },
     "fontWeight": {
       "thin": "var(--font-weight-thin)",
       "extralight": "var(--font-weight-extralight)",
