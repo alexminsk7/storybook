@@ -338,3 +338,105 @@ Compound parts (Radix `Root`/`Item`/`Trigger`/`Content`):
 - Code Connect (`.figma.ts`) — same blocker as Button (needs a Figma Organization plan)
 - actual implementation (`accordion.tsx`, `accordion.stories.tsx`) — this is the SPEC section
   only; no component code was written per instruction
+
+## Component — `Alert`
+
+Source: `src/components/ui/alert.tsx` (not yet built), stories:
+`src/components/ui/alert.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`73:3398`** "Alert"
+— outer documentation-page chrome (title, description, "View in Shadcn" link, divider rules
+between examples), ignored below. Three example symbols live on this page: **`73:3445`**
+"Default" (icon + title + description), **`381:854`** "Title only" (icon + title, no
+description), **`381:855`** "Destructive" (icon + title + description + a bulleted list).
+Verified live via `get_design_context` on 2026-09-05.
+
+Figma's own per-symbol descriptions: *Default* — "Inline contextual alert — an informational
+message that sits in the document flow (not a toast)." *Title only* — "Alert variant with a title
+and no body copy — compact single-line notice." *Destructive* — "Destructive alert variant —
+signals an error or failed action."
+
+**"Title only" is not a separate variant** — it is the `default` variant's styling with an
+optional `AlertDescription` simply omitted, not a distinct visual treatment or a third `variant`
+enum value. Only two real style variants exist: `default` and `destructive`.
+
+**Structural inconsistency found between the three example symbols, resolved by falling back to
+generic shadcn/ui docs** (per this project's established priority rule — Figma wins on visual
+values, but when Figma's own examples disagree on *structure*, generic docs settle the tie):
+`Destructive` and `Title only` both use one icon, sized to the full height of the title(+
+description) column beside it — the clean, general structure. `Default` alone duplicates the icon
+slot as two separate icon+text flex rows (one real icon, one invisible spacer row for
+alignment) — a Figma authoring artifact specific to that one instance, not the general contract.
+The real, current `ui.shadcn.com/docs/components/alert` implementation uses a CSS grid
+(`grid-cols-[calc(var(--spacing)*4)_1fr] grid-rows-[auto_auto]`, icon as `row-span-2`) to get the
+same "icon once, text stacked beside it" result without duplicating the icon — that grid approach
+is the contract below, not `Default`'s duplicated-icon flex rows.
+
+Confirmed structural/token facts from the live pull:
+
+- container: `border border-[var(--alert-border-default,#e4e4e7)]
+  bg-[var(--alert-background-default,white)] rounded-[var(--radius-lg,10px)]
+  px-[var(--px-4,16px)] py-[var(--py-3,12px)]` — **10px radius is the same scale gap already
+  documented for Alert Dialog** (no `--radius-10` token); use `rounded-[var(--radius-12)]` for the
+  same nearest-fit reason, keep the two consistent
+- `px-4`(16px fallback) → this project's `space-5` (16px); `py-3`(12px fallback) → `space-4`
+  (12px) — Tailwind `px-5 py-4`, not `px-4 py-3` (same digit-suffix-≠-project-scale gotcha as
+  Accordion/Alert Dialog)
+- gap between icon and text column: `gap-x-3`(12px fallback) → `space-4` → Tailwind `gap-4`
+- icon: 16×16 — **`size-5` in this project's remapped scale, not `size-4`** (same digit-suffix
+  gotcha as elsewhere: this project's `size-4` = 12px, `size-5` = 16px; confirmed by computed-style
+  measurement during the storybook step, not assumed) — consumer-supplied (each of the three examples uses a **different**
+  glyph — a check-circle, a trash icon, and a warning-circle — confirming the icon is a free-form
+  child, not a variant-controlled swap slot, matching real shadcn/ui's API where any SVG can be
+  passed as the first child)
+- title: `text-sm font-medium leading-5` — `text-[var(--alert-foreground-default,#09090b)]` for
+  `default`, `text-[var(--alert-foreground-destructive,#e7000b)]` for `destructive`
+- description: `text-sm font-normal leading-5`, same two foreground tokens as title (both title
+  and description use the *same* foreground color per variant — confirmed, no separate muted tone
+  for the description here, unlike Alert Dialog's `dialog-foreground-muted`)
+- `Destructive`'s bulleted list (`<ul className="list-disc">`, `<li>` items) is example content
+  inside the description slot, not a distinct sub-component — `AlertDescription` accepts arbitrary
+  children including lists; no dedicated `AlertList` part exists in the contract
+- `tokens.css` already has `--alert-background-success`/`--alert-foreground-success` (pre-synced
+  tier-3 tokens) but **no live Figma instance of a `success` alert was found on this page** (only
+  Default/Title-only/Destructive) and **no `--alert-border-success` token exists at all** — not
+  building a `success` variant now; flagged as backlog, do not invent it from the leftover tokens
+  alone
+
+### Contract
+
+No new dependency — `Alert` is a plain styled container, not a Radix primitive (same as `Card`).
+
+| Part | Element | Notes |
+| --- | --- | --- |
+| `Alert` | `div`, `role="alert"` | `variant` prop: `default` \| `destructive`; grid container: `grid grid-cols-[16px_1fr] grid-rows-[auto_auto] gap-x-4 gap-y-1 rounded-[var(--radius-12)] border px-5 py-4 text-sm`; icon child gets `[&>svg]:row-span-2 [&>svg]:size-5` (16px true size, not `size-4`) |
+| `AlertTitle` | `div` | `font-medium leading-5 col-start-2` |
+| `AlertDescription` | `div` | `font-normal leading-5 col-start-2` — accepts arbitrary children (e.g. a `<ul>`) |
+
+- `variant: 'default'` → `border-[var(--alert-border-default)] bg-[var(--alert-background-default)] text-[var(--alert-foreground-default)]`
+- `variant: 'destructive'` → `border-[var(--alert-border-destructive)] bg-[var(--alert-background-default)] text-[var(--alert-foreground-destructive)]` (background stays the default surface per the live pull — only the border and text/icon color change on `destructive`, background does not swap to a tinted destructive fill)
+- no `size` prop — Figma shows one fixed size
+- icon is a plain child (`<svg>`/icon component), not a named prop — matches the confirmed
+  free-form-glyph finding above
+
+### Accessibility
+
+- `role="alert"` on the root so assistive tech announces it as a live region — this is a static,
+  code-level a11y requirement (Figma has no concept of ARIA roles), consistent with how Accordion's
+  focus-visible ring was added as a code-only requirement not shown in Figma
+- no interactive elements inside `Alert` itself (no button/dismiss action in any of the three
+  examples) — nothing to focus-trap or keyboard-navigate
+
+### Out of scope
+
+- `Default`'s duplicated-icon flex-row structure — a Figma authoring artifact, not the contract
+  (see "Structural inconsistency" above)
+- a `success` variant — tokens exist but no live Figma instance and no border token; backlog only
+- a dismiss/close button — none of the three Figma examples show one; not part of this contract
+- exact radius: same documented scale-gap nearest-fit as Alert Dialog (`radius-12` for a 10px
+  design value)
+- Code Connect (`.figma.ts`) — same blocker as every other component so far
+- actual implementation (`alert.tsx`, `alert.stories.tsx`) — this is the SPEC section only; no
+  component code was written per instruction

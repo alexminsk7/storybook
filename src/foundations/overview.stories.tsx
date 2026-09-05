@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion'
+import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -22,6 +23,16 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+// Plain SVG icon — Alert takes no icon prop, see alert.stories.tsx.
+function CheckCircleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  )
+}
+
 function Showcase() {
   return (
     <div className="flex flex-col gap-6">
@@ -34,6 +45,11 @@ function Showcase() {
         <Button variant="destructive">Delete</Button>
       </div>
       <Input placeholder="you@example.com" />
+      <Alert className="w-80">
+        <CheckCircleIcon />
+        <AlertTitle>Alert title</AlertTitle>
+        <AlertDescription>Border and text follow the theme.</AlertDescription>
+      </Alert>
       <Card className="w-80">
         <CardHeader>
           <CardTitle>Card title</CardTitle>
