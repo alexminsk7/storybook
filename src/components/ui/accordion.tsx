@@ -19,7 +19,7 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        'group flex w-full items-center justify-between py-[var(--py-4)] text-sm font-medium leading-5 text-[var(--accordion-foreground)] outline-none border-b border-[var(--accordion-border)] data-[state=open]:border-b-0 focus-visible:ring-2 focus-visible:ring-ring',
+        'group flex w-full items-center justify-between py-5 text-sm font-medium leading-5 text-[var(--accordion-foreground)] outline-none border-b border-[var(--accordion-border)] data-[state=open]:border-b-0 focus-visible:ring-2 focus-visible:ring-ring',
         className
       )}
       {...props}
@@ -49,7 +49,7 @@ const AccordionContent = React.forwardRef<
   <AccordionPrimitive.Content
     ref={ref}
     className={cn(
-      'flex flex-col gap-4 border-b border-[var(--accordion-border)] pb-4 text-sm font-normal leading-5 text-[var(--accordion-foreground)]',
+      'flex flex-col gap-5 border-b border-[var(--accordion-border)] pb-5 text-sm font-normal leading-5 text-[var(--accordion-foreground)]',
       className
     )}
     {...props}
