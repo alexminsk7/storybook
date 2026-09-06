@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
+import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -55,6 +56,14 @@ function Showcase() {
         <Button variant="ghostPrimary">Ghost</Button>
         <Button variant="link">Link</Button>
         <Button variant="destructive">Delete</Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <Badge>Default</Badge>
+        <Badge variant="success">Success</Badge>
+        <Badge variant="secondary">Secondary</Badge>
+        <Badge variant="destructive">Destructive</Badge>
+        <Badge variant="outline">Outline</Badge>
+        <Badge variant="info">Info</Badge>
       </div>
       <Input placeholder="you@example.com" />
       <Alert className="w-80">
