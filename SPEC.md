@@ -426,3 +426,139 @@ Circle-vs-Letters split describes — use it rather than hand-rolling image-erro
 - Code Connect (`.figma.ts`) — same blocker as every prior component
 - actual implementation (`avatar.tsx`, `avatar.stories.tsx`) — this is the SPEC section only; no
   component code was written per instruction
+
+## Component — `Alert Dialog`
+
+Source: `src/components/ui/alert-dialog.tsx` (not yet built), stories:
+`src/components/ui/alert-dialog.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`402:419`**
+"Alert Dialog" — outer documentation-page chrome (title, description, "View in Shadcn" link),
+ignored below. The reusable component lives at frame **`73:5720`** "Alert dialog", containing two
+state symbols: **`73:5719`** "State=Button" (112×36, the demo trigger) and **`1061:2210`**
+"State=open" (552×400, the open dialog). Verified live via `get_design_context` on 2026-09-05.
+
+Figma's own component description: *"Modal that interrupts the user to confirm an important or
+destructive action; blocks the background until resolved."*
+
+Figma variant axis: **State** — `Button` (closed, showing only the trigger) / `open`.
+
+The `open` symbol's outer `400×552` canvas with `p-5`(20px) padding is Figma's fixed demo-frame
+sizing, not the real component — a real `AlertDialogOverlay` is a fullscreen fixed backdrop, not
+a 400×552 box. Same "outer frame is Figma canvas, not the contract" caveat as Accordion's `73:3341`.
+
+Confirmed structural/token facts from the live pull:
+
+- dialog surface: `bg-[var(--background)] border border-[var(--border)]`, two-layer drop shadow
+  that is exactly Tailwind's built-in `shadow-lg` (`0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px
+  rgba(0,0,0,.1)` — confirmed against the file's own named effect style "Box Shadow/shadow-lg") —
+  use the `shadow-lg` utility directly, no custom token needed (`tokens.css` has no `--shadow-*`
+  scale, so Tailwind's default is untouched and already correct)
+- corner radius: Figma's raw pull gives `var(--radius-lg, 10px)`. **10px is not in this project's
+  radius scale** (`--radius-2/4/8/12/14/16/24/32/48/full/none` — confirmed via `tokens.css`, no
+  `--radius-10`). Nearest steps are 8 and 12, equally close numerically. `Card` (the closest
+  existing "elevated surface" precedent) already snaps a non-matching Figma radius to a bigger
+  step than `Button`'s 8 (`rounded-[var(--radius-14)]`, not 8) — following that precedent, use
+  **`rounded-[var(--radius-12)]`**, not 8. Flagging this as a real scale gap, not a confident exact
+  match — if Figma is later re-measured and a `--radius-10` step gets added, revisit
+- content padding: `p-[var(--p-6,24px)]` → this project's `--space-4` scale index for 24px is
+  **`space-7`** (scale: `space-0..12` = 0,2,4,8,12,16,20,24,32,40,48,64,96px), i.e. Tailwind
+  `p-7` — same "Figma's raw digit suffix ≠ this project's key" gotcha as Accordion/Button; verify
+  by pixel value, not by copying `p-6` literally
+- gap between the header block and the footer: `gap-[var(--gap-4,16px)]` → 16px = `space-5` →
+  Tailwind `gap-5` (not `gap-4`)
+- header block (title + description): `flex flex-col gap-[var(--gap-2,8px)]` → 8px = `space-3` →
+  Tailwind `gap-3` (not `gap-2`)
+- title: `font-['Geist:Regular'] font-normal text-lg leading-[var(--line-height-7,28px)]
+  text-[var(--foreground)]` — **`font-normal`, not `font-semibold`**. This is a real, confirmed
+  divergence from generic shadcn/ui docs (whose default `AlertDialogTitle` is `font-semibold`);
+  per this project's established doc-priority rule (Figma wins over generic docs when they
+  disagree — same principle already applied to Badge's variant set), the Figma-normal weight is
+  the contract here, not the docs' semibold
+- description: `text-sm font-normal leading-5 text-[var(--muted-foreground)]` — component-scoped
+  `--dialog-foreground-muted` token exists in `tokens.css` and is more precise than the generic
+  `--muted-foreground` Figma's raw pull names; use the component-scoped one (same pattern as
+  Accordion's `--accordion-foreground`)
+- footer buttons: two instances of this repo's own `Button` component — left one uses
+  `border-[var(--button-border-outline)] bg-[var(--button-background-outline)]
+  text-[var(--button-foreground-outline)]` (= `Button`'s existing `outline` variant, unchanged),
+  right one uses `bg-[var(--button-background)] text-[var(--button-foreground)]` (= `Button`'s
+  existing `default` variant) — both already-published tokens on the instances, not raw values,
+  confirming these are real `Button` instances, not custom-styled lookalikes
+- footer order in Figma (left → right): outline "Label" then default "Label" — matches Radix/
+  shadcn's conventional DOM order `Cancel` then `Action`, no divergence to reconcile
+- demo copy ("Are you absolutely sure?" / "This action cannot be undone..." / "Show dialog") is
+  Figma's example content only, not a fixed contract — same caveat as Accordion's placeholder text
+
+**Token bug found and fixed in `tokens.css` before writing this component** (not part of Alert
+Dialog's own contract, but blocking it): `--dialog-background` was declared twice inside the same
+`:root, [data-theme='light']` block — once as a translucent scrim color
+(`--color-alpha-black-20`), once as the opaque card-surface color (`var(--background)`) — the
+second silently won, so `--dialog-scrim` (which aliased `--dialog-background`) resolved to an
+**opaque** background in light mode instead of a translucent backdrop. The dark-theme block had
+the mirror-image bug: it only overrode the scrim-flavored value, leaving `--dialog-background`
+itself translucent in dark mode. Fixed by splitting the collision into two independently-named
+variables (`--dialog-background` = surface, `--dialog-scrim` = backdrop) in both theme blocks, and
+repointing `--drawer-scrim`/`--sheet-scrim` (same collision, same root cause) at the fixed
+`--dialog-scrim` instead of at `--dialog-background`.
+
+### Contract
+
+**New dependency**: `@radix-ui/react-alert-dialog` — not currently in `package.json`. Same tier as
+`@radix-ui/react-accordion`.
+
+Compound parts (Radix `Root`/`Trigger`/`Portal`/`Overlay`/`Content`/`Title`/`Description`/
+`Action`/`Cancel`; `Header`/`Footer` are plain layout `div`s per shadcn convention, not Radix
+primitives):
+
+| Part | Radix primitive | Notes |
+| --- | --- | --- |
+| `AlertDialog` | `AlertDialogPrimitive.Root` | |
+| `AlertDialogTrigger` | `AlertDialogPrimitive.Trigger` | consumer supplies the trigger content (often `asChild` + this repo's `Button`) — Figma's "Show dialog" is a demo only, not a fixed contract |
+| `AlertDialogPortal` | `AlertDialogPrimitive.Portal` | |
+| `AlertDialogOverlay` | `AlertDialogPrimitive.Overlay` | `fixed inset-0 z-50 bg-[var(--dialog-scrim)]`; fullscreen — Figma's 400×552 canvas is demo sizing only |
+| `AlertDialogContent` | `AlertDialogPrimitive.Content` | `bg-[var(--dialog-background)] border border-[var(--dialog-border)] rounded-[var(--radius-12)] shadow-lg flex flex-col gap-5 p-7`, fixed/centered (`fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`), `z-50` |
+| `AlertDialogHeader` | plain `div` | `flex flex-col gap-3 text-left` |
+| `AlertDialogFooter` | plain `div` | `flex items-center justify-end gap-3` |
+| `AlertDialogTitle` | `AlertDialogPrimitive.Title` | `text-lg font-normal leading-7 text-[var(--dialog-foreground)]` |
+| `AlertDialogDescription` | `AlertDialogPrimitive.Description` | `text-sm font-normal leading-5 text-[var(--dialog-foreground-muted)]` |
+| `AlertDialogAction` | `AlertDialogPrimitive.Action` | styled with `buttonVariants()` (default/primary) — reuse `Button`'s `cva`, don't reimplement |
+| `AlertDialogCancel` | `AlertDialogPrimitive.Cancel` | styled with `buttonVariants({ variant: 'outline' })` |
+
+- no `size` prop — Figma shows one fixed size
+- unlike `Dialog`, `AlertDialogPrimitive.Content` does not dismiss on outside click, by Radix's
+  own design (`onPointerDownOutside`/`onInteractOutside` call `preventDefault()` internally,
+  confirmed by reading `@radix-ui/react-alert-dialog`'s source and by browser verification) — do
+  not add custom dismiss-on-outside-click behavior, that would contradict the component's purpose.
+  **Escape does still close it** (falls through to the underlying Dialog primitive's default
+  Escape handling, acting like `Cancel`) — this is real Radix/shadcn behavior, not a bug; an
+  earlier draft of this SPEC incorrectly claimed Escape was blocked too, corrected after live
+  verification
+- open/close fade+scale animation on `Overlay`/`Content` — no motion spec was in the Figma pull
+  (only `Button`/`open` states, no transition frames), so exact easing/duration is a code-only
+  decision, consistent with Accordion's reduced-motion note
+
+### Accessibility
+
+- Radix sets `role="alertdialog"`, `aria-labelledby` (→ `Title`), `aria-describedby` (→
+  `Description`) automatically — do not hand-roll these
+- focus moves into the dialog on open and returns to the trigger on close automatically (Radix
+  focus trap); rely on Radix's defaults rather than reimplementing
+- reduced-motion: the fade+scale transition should respect `prefers-reduced-motion`, consistent
+  with Accordion's and Button's reduced-motion notes
+- no disabled/hover states in Figma or required by the pull — `Action`/`Cancel` inherit whatever
+  hover/disabled treatment `Button`'s own `cva` already defines, nothing new to add here
+
+### Out of scope
+
+- the trigger's visual styling — Figma's "Show dialog" is a demo only; the real component accepts
+  arbitrary trigger content via `asChild`
+- the 400×552 demo canvas sizing and its `p-5` padding — Figma frame artifact, not the real
+  fullscreen `Overlay` behavior
+- exact radius: flagged as a scale gap (10px has no exact token), `radius-12` is a documented
+  nearest-fit choice, not a confirmed exact match
+- Code Connect (`.figma.ts`) — same blocker as Button/Accordion (needs a Figma Organization plan)
+- actual implementation (`alert-dialog.tsx`, `alert-dialog.stories.tsx`) — this is the SPEC
+  section only; no component code was written per instruction
