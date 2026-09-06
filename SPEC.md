@@ -467,6 +467,94 @@ category as `Alert`/`Card`.
 - actual implementation (`badge.tsx`, `badge.stories.tsx`) — this is the SPEC section only; no
   component code was written per instruction
 
+## Component — `Avatar`
+
+Source: `src/components/ui/avatar.tsx` (not yet built), stories:
+`src/components/ui/avatar.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`73:3473`** "Avatar"
+— outer documentation-page chrome ignored below. **Note: this outer frame's own description text
+("A modal dialog that interrupts the user with important content and expects a response.") is a
+Figma copy-paste error — it's word-for-word Alert Dialog's description, not Avatar's. Not used
+below**; the four sub-symbols each have their own, correct, specific descriptions instead. Four
+example symbols: **`455:365`** "Circle" (32×32, image, no border), **`3141:19830`** "Letters"
+(32×32, initials fallback, bordered), **`455:364`** "Square" (32×32, square corners, image),
+**`455:363`** "Avatar_group" (three overlapping 32×32 avatars). Verified live via
+`get_design_context` on 2026-09-05.
+
+Figma's own per-symbol descriptions: *Circle* — "Circular user avatar — image with initials/icon
+fallback." *Letters* — "Avatar showing user initials when no image is set." *Square* —
+"Square-cornered avatar variant." *Avatar_group* — "Overlapping stack of avatars for multiple
+users, with a +N overflow counter."
+
+Confirmed structural/token facts from the live pull:
+
+- size: 32×32 in every example → Tailwind `size-8`. Checked against the digit-suffix gotcha that
+  has bitten every prior component: this project's `space-8` **is** 32px, so `size-8` is correct
+  here without needing an arbitrary `var(--space-N)` override — the first size in this component
+  library where the bare Tailwind number and this project's remapped scale happen to agree
+- `Circle` (image avatar): `rounded-full`, **no border** — `<img class="object-cover rounded-full size-full">`
+- `Letters` (fallback avatar): `rounded-full border border-[var(--avatar-border,#e4e4e7)]
+  bg-[var(--avatar-background,white)]`, centered uppercase initials
+  `text-sm leading-4 text-[var(--avatar-foreground,#09090b)]` ("WW" in the example — two-letter
+  initials, not one)
+- `Square`: same image treatment as `Circle` but `rounded-[var(--radius-8,8px)]` instead of
+  `rounded-full` — exact scale match, no gap (unlike Alert/Alert Dialog's 10px case)
+- `Avatar_group`: three avatars in a row, each pulled left by `mr-[-8px]` onto the previous one.
+  **8px is this project's `--space-3`**, not `--space-2` (space-2 is 4px) — use `-mr-3`, not a
+  literal `-8px` or `-mr-2`, per the same "match by pixel value" rule as every prior component.
+  Border pattern: the **first** avatar in the stack has no border (nothing underneath it to
+  separate from); every **subsequent** one has `border border-[var(--avatar-border)]` so its edge
+  reads distinctly against the avatar it overlaps — this matches `Letters`' existing border
+  treatment being reused as a stacking separator, not a new token
+- the "+N overflow counter" mentioned in `Avatar_group`'s own Figma description **has no example
+  instance anywhere in this pull** (all three group avatars show real images, no counter badge) —
+  its shape, position, and trigger threshold are not shown; not building it from the description
+  text alone, see Out of scope
+
+### Contract
+
+**New dependency**: `@radix-ui/react-avatar` — not currently in `package.json`. Same tier as
+`@radix-ui/react-accordion`/`@radix-ui/react-alert-dialog`. Radix's `Avatar.Image` already
+implements the "show image if it loads, otherwise fall through" behavior that Figma's
+Circle-vs-Letters split describes — use it rather than hand-rolling image-error detection.
+
+| Part | Radix primitive | Notes |
+| --- | --- | --- |
+| `Avatar` | `AvatarPrimitive.Root` | `shape` prop: `circle` (default, `rounded-full`) \| `square` (`rounded-[var(--radius-8)]`); `flex size-8 overflow-hidden shrink-0` — **`flex` is required, not decorative**: Radix's `Avatar.Root` renders a `<span>` (`display: inline` by default), which ignores `width`/`height` and never clips `overflow-hidden` unless blockified — confirmed by live browser measurement during the storybook step (a bare `Avatar` rendered 64×64 unclipped instead of 32×32 circular until `flex` was added; it only "looked" correct wherever a flex/grid parent happened to blockify it, e.g. inside `AvatarGroup`) |
+| `AvatarImage` | `AvatarPrimitive.Image` | `size-full object-cover` — no border (matches `Circle`/`Square`) |
+| `AvatarFallback` | `AvatarPrimitive.Fallback` | `size-full flex items-center justify-center border border-[var(--avatar-border)] bg-[var(--avatar-background)] text-sm leading-4 text-[var(--avatar-foreground)] uppercase` — takes its own `shape` prop for corner rounding (no shared context with `Avatar` Root; a consumer using `shape="square"` must pass it to both, same as this project's other two-prop compounds) |
+| `AvatarGroup` | plain `div` wrapper (not a Radix primitive — Radix ships no group primitive) | `flex items-center [&>*:not(:first-child)]:border [&>*:not(:first-child)]:border-[var(--avatar-border)] [&>*:not(:last-child)]:-mr-3` |
+
+- no `size` prop beyond the one fixed 32×32 Figma shows — if a size scale is needed later, it's a
+  code-only extension, not in this contract
+- `AvatarFallback` initials are consumer-supplied text content (Radix requires manual text, e.g.
+  first-letter-of-first-and-last-name logic) — not computed by the component itself
+- `shape="square"` is a real, confirmed design-system extension beyond shadcn/ui's stock Avatar
+  (which is always circular) — keep it, it has its own named Figma symbol and description, same
+  "Figma-set is the contract, generic docs are anatomy-only" principle already applied to Badge
+
+### Accessibility
+
+- `AvatarImage` should always receive a meaningful `alt`; Radix does not enforce this — a
+  code-level requirement, not shown in Figma (Figma's own image layers have empty `alt=""`, which
+  is a Figma-canvas-rendering artifact, not a real accessibility recommendation)
+- `AvatarFallback` renders as plain text — no ARIA role needed, it's not interactive
+- no focus states apply — `Avatar` renders no interactive elements in any example
+
+### Out of scope
+
+- the `AvatarGroup` "+N overflow counter" — named in Figma's own description text but no example
+  instance shows its shape, position, or trigger threshold; not inventing it from prose alone
+- an automatic initials-generation helper (e.g. deriving "WW" from a full name) — Figma shows the
+  rendered result only, not the source logic; consumer supplies the initials text directly
+- a size scale beyond the one 32×32 example
+- Code Connect (`.figma.ts`) — same blocker as every prior component
+- actual implementation (`avatar.tsx`, `avatar.stories.tsx`) — this is the SPEC section only; no
+  component code was written per instruction
+
 ## Component — `Alert`
 
 Source: `src/components/ui/alert.tsx` (not yet built), stories:
