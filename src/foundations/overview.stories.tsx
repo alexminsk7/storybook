@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog'
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -61,6 +62,16 @@ function Showcase() {
         <AlertTitle>Alert title</AlertTitle>
         <AlertDescription>Border and text follow the theme.</AlertDescription>
       </Alert>
+      <div className="flex items-center gap-3">
+        <Avatar>
+          <AvatarImage src="/this-avatar-does-not-exist.png" alt="Wendy Wonka" />
+          <AvatarFallback>WW</AvatarFallback>
+        </Avatar>
+        <Avatar shape="square">
+          <AvatarImage src="/this-avatar-does-not-exist.png" alt="Wendy Wonka" />
+          <AvatarFallback shape="square">WW</AvatarFallback>
+        </Avatar>
+      </div>
       <Card className="w-80">
         <CardHeader>
           <CardTitle>Card title</CardTitle>
