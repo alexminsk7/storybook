@@ -792,3 +792,256 @@ primitives):
 - Code Connect (`.figma.ts`) — same blocker as Button/Accordion (needs a Figma Organization plan)
 - actual implementation (`alert-dialog.tsx`, `alert-dialog.stories.tsx`) — this is the SPEC
   section only; no component code was written per instruction
+
+## Component — `Calendar`
+
+Source: `src/components/ui/calendar.tsx` (not yet built — see "Out of scope") · stories:
+`src/components/ui/calendar.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", page frame **`73:3711`**
+"Calendar". **No live Figma MCP access this session** — this section is written from the LEAD's
+`FIGMA-BRIEF-calendar.md` (Figma MCP pull, 2026-09-06), not independently re-verified against a
+live node.
+
+`73:3711` shows **one component** (`Calendar`, a thin wrapper over `react-day-picker` v9 — new
+dependency, user-approved 2026-09-06) in several prop configurations, plus two Popover
+compositions. Figma's config symbols are **not separate components** — same "one component,
+several prop values" pattern as Alert's "Title only". Mapping (flag any of these being read as
+distinct components as drift):
+
+| Figma symbol / label | code |
+| --- | --- |
+| Calendar — base, single month (`502:3312`) | `<Calendar mode="single" captionLayout="dropdown" />` |
+| Range Calendar (`502:3314`) | `<Calendar mode="range" numberOfMonths={2} captionLayout="label" />` |
+| Month and Year Selector (`502:3321`) — "Month and Year" | `captionLayout="dropdown"` |
+| … "Month Only" | `captionLayout="dropdown-months"` |
+| … "Year Only" | `captionLayout="dropdown-years"` |
+| 2-month / Custom-Cell caption ("June 2025" centred) | `captionLayout="label"` (RDP default) |
+| Custom Cell Size (`1463:5909`) | `<Calendar className="[--cell-size:3rem]" captionLayout="label" />` — **no `size` prop** (see Cell size) |
+| "Dropdown" `<select>` shown under the calendars (`502:3321`) | Storybook `argTypes` select control on the story — **not** a `Select` component |
+| Date of Birth Picker (`502:3324`) | story-level `DatePickerDemo()` in `calendar.stories.tsx` — `Popover` + `<Calendar mode="single" captionLayout="dropdown" />` |
+| Date and Time Picker (`502:3327`) | story-level `DateTimePickerDemo()` — the DoB popover (narrower) + this repo's `Input type="time" step="1"` |
+
+The two pickers are **demo compositions, not new primitives** — small functions inside the
+stories file, exactly like `AccordionDemo` / `AlertDialogDemo`.
+
+Not added (user decision 2026-09-06): `date-fns` (the picker stories format the selected date with
+native `Intl.DateTimeFormat(undefined, { dateStyle: 'long' })`); `lucide-react` (chevrons are
+inline `<svg>`, like `accordion.tsx`). `react-day-picker` v9 does its own date math internally —
+there is no `date-fns` **peer** dependency to add. If `date-fns` shows up in the lockfile it is
+RDP's own bundled copy, which this repo neither imports from nor lists in `package.json`.
+
+### Contract
+
+Not yet implemented — `calendar.tsx` / `popover.tsx` do not exist (`src/components/ui/` currently
+has `accordion` `alert-dialog` `button` `card` `input`). This specifies what the builder
+implements, following shadcn's own RDP-v9 `Calendar` wrapper and this repo's Radix-primitive
+convention.
+
+**New dependencies**: `react-day-picker@^9`, `@radix-ui/react-popover@^1` (same tier as the four
+`@radix-ui/*` packages already in `package.json`).
+
+`Calendar` is `React.ComponentProps<typeof DayPicker>` intersected with `{ buttonVariant? }` — the
+full `DayPicker` prop surface passes through. In-scope props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `mode` | `"single" \| "multiple" \| "range"` | none (display-only) | passthrough; `selected` / `onSelect` types follow `mode` |
+| `selected` / `onSelect` | per `mode` | — | passthrough; v9 `onSelect(value, triggerDate, modifiers, e)` |
+| `captionLayout` | `"label" \| "dropdown" \| "dropdown-months" \| "dropdown-years"` | `"label"` | `label` = static "June 2025"; `dropdown` = month + year `<select>`; `dropdown-months` / `dropdown-years` = one `<select>` + one label |
+| `numberOfMonths` | `number` | `1` | `2` for the range view; RDP shows the prev chevron on the first month and the next chevron on the last only |
+| `disabled` | RDP `Matcher \| Matcher[]` | — | matching days get `disabled` + `aria-disabled`, non-interactive |
+| `showOutsideDays` | `boolean` | `true` | adjacent-month leading/trailing days rendered at `opacity-50` |
+| `startMonth` / `endMonth` | `Date` | — | bound month nav and the `dropdown-years` range; the DoB picker sets these |
+| `buttonVariant` | this repo's `Button` `variant` | `"ghost"` | nav-button style (shadcn v9 prop) |
+| `className` | `string` | — | on the RDP root; carries `[--cell-size:…]` overrides |
+| `classNames` | `Partial<ReturnType<typeof getDefaultClassNames>>` | — | per-part class overrides (RDP passthrough) |
+| `components` | RDP `CustomComponents` | wrapper presets `Chevron` (inline `<svg>`) | consumer may extend / override |
+| …rest | `DayPickerProps` | — | `month`, `defaultMonth`, `weekStartsOn`, `min`, `max`, `required`, `locale`, `formatters`, … all pass through |
+
+**No `size` prop.** Day / weekday / nav cell scale is the shadcn-v9 `--cell-size` CSS custom
+property set on the RDP root: default `[--cell-size:2rem]` (32px — matches Figma's 32px day
+cell). Per-instance override is a `className`, e.g. Custom Cell Size passes
+`className="[--cell-size:3rem]"` (≈48px). A bespoke `size` enum would duplicate a native
+mechanism for a single story — not added.
+
+Structure / tokens a reviewer checks (resolve every px→key by **value**, not digit — this repo's
+`--space-N` / `--height-N` / `--radius-N` scales differ from stock Tailwind, the same gotcha
+already documented for Button / Accordion / Alert / Alert Dialog):
+
+- **container** (RDP `root`): `bg-popover-background border border-popover-border
+  rounded-[var(--radius-12)] p-4 shadow-[0_1px_3px_0_rgba(0,0,0,0.1)]`, `flex flex-col gap-5`
+  (`p-4` = `--space-4` = 12px; `gap-5` = `--space-5` = 16px; the shadow value equals `Card`'s)
+- **months wrapper** (2-month view): `gap-5` (16px) between months
+- **nav buttons** (`button_previous` / `button_next`): `size-[var(--cell-size)]` (32px),
+  `rounded-8` (Figma 6px → nearest repo step, +2px), inline `<svg>` chevron 16px `currentColor`,
+  hover `bg-accent` (from `buttonVariant="ghost"`), `focus-visible:ring-2 focus-visible:ring-ring`
+- **caption `label`**: centred `text-sm font-medium text-foreground` ("June 2025"); text comes
+  from RDP's default formatter (English) — a `formatters` + `Intl.DateTimeFormat` override is
+  available but not needed to match Figma
+- **caption `dropdown*`**: RDP native `<select>` per unit, styled as a pill —
+  `h-[var(--height-32)] rounded-8 border border-border bg-background text-sm font-medium
+  text-foreground` + inline `<svg>` down-chevron ≈12px; **keep the native `<select>`** (see a11y),
+  style via `classNames`
+- **weekday header**: `text-xs font-normal text-muted-foreground`, cell width `--cell-size`,
+  labels from RDP (Su Mo Tu We Th Fr Sa)
+
+Day-cell states (RDP modifier → styling; `text-sm font-normal`, box is `--cell-size` square):
+
+| State | RDP modifier | Styling (tokens) |
+| --- | --- | --- |
+| default | — | `text-foreground` |
+| hover | — | `bg-accent text-accent-foreground` |
+| selected (single / multiple) | `selected` | `bg-primary text-primary-foreground rounded-8` |
+| today (not selected) | `today` | `bg-accent text-accent-foreground rounded-8` |
+| outside month | `outside` | `text-muted-foreground opacity-50` (only when `showOutsideDays`) |
+| disabled | `disabled` | `text-muted-foreground opacity-50 pointer-events-none` + `aria-disabled` |
+| range start | `range_start` | `bg-primary text-primary-foreground rounded-l-8` (full `rounded-8` when start === end) |
+| range end | `range_end` | `bg-primary text-primary-foreground rounded-r-8` |
+| range middle | `range_middle` | `bg-accent text-accent-foreground` — square, continuous band |
+| focus-visible (keyboard) | `focused` | `focus-visible:ring-2 focus-visible:ring-ring` on the day button |
+
+`selected` wins over `today` when both apply. No `loading` / pressed / active state — RDP days are
+plain buttons and Figma shows none.
+
+### Story compositions (demo-level, in `calendar.stories.tsx` — not exported primitives)
+
+- **`DatePickerDemo`** (`502:3324`): label "Date of birth" (`text-sm font-medium`) above a
+  `Popover`. Trigger = `Button variant="outline"` ≈`w-[240px]`, `justify-between`; left text
+  "Select a date" (`text-muted-foreground`) when empty, else
+  `Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(date)`; trailing inline-`<svg>`
+  chevron 16px. `PopoverContent className="w-auto p-0"` wraps
+  `<Calendar mode="single" captionLayout="dropdown" startMonth={…} endMonth={…} />`. Selecting a
+  day sets the story's `open` state to `false` (closes the popover).
+- **`DateTimePickerDemo`** (`502:3327`): `flex gap-5`. Left = `DatePickerDemo`'s popover, narrower
+  (≈`w-[150px]`). Right = label "Time" + `<Input type="time" step="1" defaultValue="10:30:00" />`
+  — this repo's existing `Input`, **no change to `input.tsx`** (`type` and `className` already
+  pass through); optional `className="[&::-webkit-calendar-picker-indicator]:hidden"` if the
+  native time icon looks off.
+
+### Token resolution & open gaps for LEAD
+
+- **Figma `radius-lg` 10px** (calendar container, and Popover content) — no `--radius-10` in
+  `tokens.css`. Spec'd as **`rounded-[var(--radius-12)]`** (+2px), matching the same nearest-fit
+  already chosen for `Alert` and `Alert Dialog` at this exact 10px value. (`Card` independently
+  snapped its own non-matching radius to `--radius-14`.) Revisit if a `--radius-10` token is added.
+- **Figma nav-button radius 6px** — no `--radius-6`; `--radius-4` and `--radius-8` are
+  equidistant. Spec'd as **`rounded-8`** to match this repo's `Button` corner and the day cells.
+  Flag, not an exact match.
+- **6px pill gap** (between caption `<select>`s) has no key in this repo's spacing scale
+  (`--space-1` 2px / `--space-2` 4px / `--space-3` 8px); `gap-[6px]` or snap to `gap-2` / `gap-3`
+  — builder's call, cosmetic.
+- **`--cell-size` default `2rem`** is a literal, not a token — 32px matches Figma, no token needed.
+
+### Accessibility
+
+- `react-day-picker` v9 renders a real `role="grid"` table: `gridcell` day buttons with per-day
+  `aria-label` and `aria-selected`, roving `tabindex`, and built-in keyboard nav (arrow keys,
+  Home / End, PageUp / PageDown for months, Shift+PageUp / PageDown for years). Rely on RDP — do
+  not reimplement grid semantics or key handling.
+- nav buttons are real `<button>`s with RDP-supplied `aria-label`s and `aria-disabled` at the
+  `startMonth` / `endMonth` bounds; add the house `focus-visible:ring-2 focus-visible:ring-ring`.
+- day buttons get the same `focus-visible` ring; focus **movement** is RDP's, the ring is ours.
+- `captionLayout="dropdown*"` uses native `<select>` — keyboard/AT-accessible for free, RDP gives
+  each an accessible name ("Choose the Month" / "Choose the Year"). Do **not** swap in a custom
+  listbox (out of scope).
+- reduced-motion: `Calendar` has no animation of its own (month nav is instant) — nothing to gate.
+- picker trigger (story-level): the trigger `Button` must carry an accessible name — the visible
+  label plus `aria-label` / `aria-labelledby` tying it to the field label ("Date of birth" /
+  "Time"), since "Select a date" alone is ambiguous out of context.
+
+### Out of scope
+
+- `calendar.tsx` / `calendar.stories.tsx` implementation — this is the SPEC section only; no
+  component code was written per instruction
+- the two picker compositions as shipped primitives — they are demo functions in
+  `calendar.stories.tsx`, not exports; `input.tsx` is not modified
+- a standalone `Select` for the caption — RDP's native `<select>` is kept and styled via
+  `classNames`
+- i18n: `locale` prop, `date-fns` locale, localized month / weekday names beyond the browser
+  default; RDP `formatters` not customised (defaults are English, which matches Figma)
+- time-zone handling — JS `Date` / RDP operate in local time only; no TZ prop
+- multi-month range beyond `numberOfMonths={2}`
+- week-number column, `ISOWeek`, calendar footer
+- exact radius (10px / 6px) — documented nearest-fit, see "open gaps" above
+- Code Connect (`.figma.ts`) — same Figma-Org-plan blocker as every prior component
+
+## Component — `Popover`
+
+Source: `src/components/ui/popover.tsx` (not yet built) · stories:
+`src/components/ui/popover.stories.tsx` (not yet built — basic open/closed), also exercised by the
+picker compositions in `calendar.stories.tsx`
+
+### Figma
+
+No dedicated Popover page. Popover appears only as the shell of the two picker compositions on
+`73:3711` (DoB picker `502:3324`, Date & Time picker `502:3327`), per `FIGMA-BRIEF-calendar.md` —
+**no live Figma MCP access this session**. There is no variant axis: Figma shows one open popover
+containing a `Calendar`. Everything visual inside belongs to `Calendar`; `Popover` contributes the
+surface + positioning only.
+
+### Contract
+
+**New dependency**: `@radix-ui/react-popover@^1`. Thin wrapper, shadcn-style, matching this repo's
+`alert-dialog.tsx` conventions — **manual `data-[state]` transitions** (this repo has no
+`tailwindcss-animate` plugin; `tailwind.config.cjs` sets `plugins: []`).
+
+| Part | Radix primitive | Notes |
+| --- | --- | --- |
+| `Popover` | `PopoverPrimitive.Root` | re-export; `modal` passthrough (Radix default `false`) |
+| `PopoverTrigger` | `PopoverPrimitive.Trigger` | re-export; usually `asChild` + this repo's `Button` |
+| `PopoverAnchor` | `PopoverPrimitive.Anchor` | re-export; optional — positioning ref when it differs from the trigger |
+| `PopoverContent` | `PopoverPrimitive.Portal` › `PopoverPrimitive.Content` | styled; forwards `align` / `sideOffset` |
+
+`PopoverContent` defaults & styling:
+
+- `align="center"`, `sideOffset={4}` (shadcn defaults); `side="bottom"` (Radix default);
+  `avoidCollisions` on (Radix default) — auto-flips near the viewport edge
+- classes: `z-50 w-72 rounded-[var(--radius-12)] border border-popover-border
+  bg-popover-background p-4 text-popover-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.1)]
+  outline-none` — `--popover-background` / `--popover-border` / `--popover-foreground` all exist
+  in `tokens.css` and flip for dark + the `applicant` brand, so `Popover` stays theme-agnostic
+- open/close transition (mirrors `alert-dialog.tsx`): `transition-[opacity,transform] duration-200
+  data-[state=closed]:opacity-0 data-[state=closed]:scale-95 data-[state=open]:opacity-100
+  data-[state=open]:scale-100`
+- the picker compositions override `className="w-auto p-0"` so the content shrink-wraps the
+  `Calendar`
+
+### Interaction states
+
+| Trigger | Behaviour |
+| --- | --- |
+| rest | trigger only; content not mounted |
+| open (click / Enter / Space) | Radix mounts content in a portal, positions it, moves focus into the content (`onOpenAutoFocus`) |
+| Esc | closes; focus returns to the trigger |
+| outside pointer-down / focus leaves content | closes; focus returns to the trigger |
+| focus-visible | the trigger uses whatever `focus-visible` ring its own element defines (the `Button` ring when `asChild` + `Button`); `Popover` adds none |
+| disabled / loading | not applicable — `Popover` has no such state; a disabled trigger is the consumer's `Button` |
+
+### Accessibility
+
+- **Focus trap**: only when `Popover modal` is set. Radix default is **non-modal**
+  (`modal={false}`) — focus is *managed* (into content on open, back to trigger on close) but not
+  *trapped*, there is no scroll-lock, and the background stays interactive. The pickers use the
+  non-modal default; selecting a day sets the story's `open` to `false`, closing the popover and
+  restoring focus.
+- **Esc** always closes and restores focus, in both modes.
+- **Labelling**: Radix Popover has no `Title` / `Description` primitive. Radix sets the trigger's
+  `aria-haspopup` / `aria-expanded` / `aria-controls` and gives the content an `id`; it does not
+  auto-label the content. For the pickers the `Calendar` grid is self-describing; the trigger
+  `Button` carries the accessible name (see Calendar › Accessibility).
+- reduced-motion: the opacity/scale transition should respect `prefers-reduced-motion`, consistent
+  with `Button` / `Alert Dialog` notes; exact easing/duration is a code decision (no motion spec
+  in Figma).
+
+### Out of scope
+
+- `popover.tsx` / `popover.stories.tsx` implementation — SPEC section only
+- `PopoverArrow` — not in Figma, not exported (can be added later)
+- `Title` / `Description` sub-parts — Radix Popover has none; labelling is the consumer's job
+- a custom focus trap in non-modal mode — pass Radix `modal` if a trap is required
+- `tailwindcss-animate` enter/exit keyframes — this repo uses manual `data-[state]` transitions
+- exact radius (10px `radius-lg`) — same documented `--radius-12` nearest-fit as `Calendar`
+- Code Connect (`.figma.ts`) — same blocker as every prior component

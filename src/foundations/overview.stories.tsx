@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
+import { Calendar } from '../components/ui/calendar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 
@@ -104,6 +105,12 @@ function Showcase() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      <Calendar
+        mode="single"
+        selected={new Date(2025, 5, 25)}
+        defaultMonth={new Date(2025, 5, 1)}
+        captionLayout="dropdown"
+      />
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button variant="outline">Open dialog</Button>
