@@ -87,3 +87,14 @@ export const Destructive: Story = {
 export const XL: Story = {
   args: { size: 'xl' },
 };
+
+// Figma "CTA Button" (node 3115:18877 on the Button page) is not its own component — it is the
+// `default` button stretched to its container's width. See SPEC.md "Button" › Figma.
+export const CTA: Story = {
+  args: { children: 'Get started' },
+  render: (args) => (
+    <div className="w-80">
+      <Button {...args} className="w-full" />
+    </div>
+  ),
+};
