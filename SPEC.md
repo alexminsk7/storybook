@@ -348,6 +348,329 @@ Compound parts (Radix `Root`/`Item`/`Trigger`/`Content`):
 - actual implementation (`accordion.tsx`, `accordion.stories.tsx`) — this is the SPEC section
   only; no component code was written per instruction
 
+## Component — `Breadcrumb`
+
+Source: `src/components/ui/breadcrumb.tsx` (not yet built), stories:
+`src/components/ui/breadcrumb.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`101:424`**
+"Breadcrumb" — outer documentation-page chrome ignored below. The reusable component set lives
+at **`665:2036`**, a real component set with one `Type` variant property and five values:
+`custom_seperator` (**`101:634`**), `dropdown` (**`424:448`**), `collapsed` (**`101:633`**),
+`link_component` (**`101:632`**), `responsive` (**`101:631`**). Verified live via
+`get_design_context` on 2026-09-05.
+
+Figma's own component description: *"Hierarchical navigation trail. Type covers collapsed
+overflow, custom separators, dropdown grouping, and responsive behavior."*
+
+**These 5 `Type` values are not a style-variant axis — they are five different USAGE EXAMPLES of
+one flexible compound-parts API, not five branches of a component-level `type` prop.** None of
+them changes color/size/font; each only changes which children are present (a slash separator
+instead of the default chevron, an ellipsis for collapsed overflow, a dropdown-styled item, plain
+vs. longer example labels). This matches real shadcn/ui's own Breadcrumb documentation almost
+exactly — their docs literally group examples under headings "Custom separator" / "Dropdown" /
+"Collapsed" / "Link component", the same four names Figma's `Type` values echo (`responsive` is a
+Figma-only fifth example, demonstrating the same collapsed-overflow pattern with different
+content, not a sixth structural shape). **No `type` prop is built** — the five Figma instances
+become five Storybook stories instead, demonstrating composition, not a switch statement.
+
+Confirmed structural/token facts from the live pull:
+
+- text: every label is `text-sm font-normal leading-5` (14px/400/20px) — links and the trailing
+  "ellipsis-truncated" labels use `text-[var(--muted-foreground)]`, the final/current item uses
+  `text-[var(--foreground)]` (still `font-normal`, not bold — matches real shadcn's own
+  `BreadcrumbPage` exactly, no divergence to flag here for once)
+- list gap: `gap-[var(--gap-1\,5,6px)]` (Figma's escaped `1,5` = "1.5", fallback 6px). **This is
+  the first spacing value in this component library that needs no digit-suffix correction**: this
+  project's `spacing` scale override only replaces the integer keys `0`–`12`; Tailwind's own
+  built-in fractional key `1.5` (0.375rem = 6px) is untouched by the override and already equals
+  Figma's fallback exactly — `gap-1.5` is correct as literally written, verify this claim in the
+  builder step by checking `tailwind.preset.cjs`'s `spacing` object only defines integer keys
+  before trusting it, don't assume from this note alone
+- separator/ellipsis icons: 14×14. Same reasoning as the gap above — `size-3.5` (Tailwind's
+  built-in 0.875rem = 14px) is untouched by this project's integer-only spacing override and
+  already matches; verify the same way before trusting it
+- the dropdown item's chevron-down icon is 16×16 — **this one does need the usual correction**:
+  it's a whole-number Figma size, not a fractional one, so the established "`size-4` = 12px here,
+  `size-5` = 16px" rule applies — use `size-5`, not `size-4`
+- the dropdown item's internal gap (icon-to-text) is `gap-[var(--space-2,4px)]` — Figma named this
+  one directly with this project's own real token name, no correction needed, use `gap-2`
+  (matches `--space-2` = 4px)
+- default separator = `lucide/chevron-right`; `custom_seperator`/`dropdown` override it with
+  `lucide/slash` instead — confirms the separator is swappable per-instance, not fixed
+- the `dropdown` instance only demonstrates the **visual affordance** (a chevron-down icon next to
+  a breadcrumb item) — no open/closed state, menu items, or interaction is shown or demoed
+  anywhere in the pull; not wiring real dropdown-menu behavior (`DropdownMenu` is a separate,
+  not-yet-built component in the backlog) — see Out of scope
+- `collapsed`/`responsive` both insert a bare `lucide/ellipsis` icon (no visible click target/box
+  around it) to represent truncated overflow items
+
+### Contract
+
+No new dependency for the icons/structure — plain HTML elements (`nav`/`ol`/`li`/`a`/`span`), same
+category as `Alert`/`Badge`. `BreadcrumbLink` reuses `@radix-ui/react-slot` (already a dependency,
+used by `Button`) for `asChild` support, matching real shadcn/ui's own API — needed for router
+`Link` compatibility, not a speculative addition.
+
+| Part | Element | Notes |
+| --- | --- | --- |
+| `Breadcrumb` | `nav` | `aria-label="breadcrumb"` — code-level requirement, not shown in Figma (Figma has no ARIA concept) |
+| `BreadcrumbList` | `ol` | `flex flex-wrap items-center gap-1.5 break-words text-sm text-[var(--muted-foreground)]` |
+| `BreadcrumbItem` | `li` | `inline-flex items-center gap-1.5` |
+| `BreadcrumbLink` | `a` (or `Slot` via `asChild`) | `text-[var(--muted-foreground)] hover:text-[var(--foreground)]` — hover is a code-only addition, Figma shows no hover state (same precedent as every prior interactive-adjacent component) |
+| `BreadcrumbPage` | `span` | `role="link" aria-disabled="true" aria-current="page" font-normal text-[var(--foreground)]` — the final, non-link item; `role="link"` tells assistive tech it visually reads as a link even though it isn't interactive (matches real shadcn/ui's own implementation — an omission in an earlier draft of this SPEC, caught during the builder step) |
+| `BreadcrumbSeparator` | `li` | `role="presentation" aria-hidden="true"`; default child is a baked-in inline chevron-right svg (`size-3.5`) — matches `accordion.tsx`'s own baked-in chevron pattern; consumer can override by passing a different child (e.g. the slash icon) |
+| `BreadcrumbEllipsis` | `span` | `role="presentation" aria-hidden="true"`; bare `size-3.5` ellipsis icon plus a `sr-only` "More" text node — the `sr-only` text is a code-level a11y requirement (Figma's icon is silent to assistive tech on canvas, a real one needs an accessible name) |
+
+- no `size`/`variant` prop on any part — Figma shows one fixed text size/weight throughout every
+  example
+- the dropdown item is composed from existing parts (`BreadcrumbItem` + `BreadcrumbLink` + a
+  chevron-down icon child), not a new named sub-component
+
+### Accessibility
+
+- `nav[aria-label="breadcrumb"]` and `BreadcrumbPage`'s `aria-current="page"`/`aria-disabled` are
+  code-level requirements matching real shadcn/ui's own accessible implementation — Figma has no
+  ARIA concept, none of this is visible on canvas
+- `BreadcrumbSeparator`/`BreadcrumbEllipsis` are `aria-hidden` — decorative, screen readers should
+  skip them; `BreadcrumbEllipsis` still needs its `sr-only` "More" text so an icon-only visual
+  isn't completely silent if a screen reader does land on it via other navigation
+- `BreadcrumbLink` is a real `<a>` (or a real link via `asChild`) — keyboard-focusable and
+  activatable by default, no custom keyboard handling needed
+- reduced-motion: not applicable — no transitions or animations anywhere in this component
+
+### Out of scope
+
+- real dropdown-menu behavior (open/close, keyboard nav, menu items) for the `dropdown` example —
+  only the visual affordance (chevron-down icon) is confirmed in Figma; wiring an actual
+  `DropdownMenu` is that component's own future scope, not Breadcrumb's
+- a visible/invisible larger tap-target box around `BreadcrumbEllipsis` (real shadcn/ui wraps it
+  in a `size-9` hit area) — Figma shows a bare icon with no surrounding box; not inventing one
+- automatic collapsing logic (deciding *when* to show an ellipsis based on available width) — both
+  `collapsed` and `responsive` are static, pre-collapsed examples; no responsive-measurement code
+  is specified here
+- Code Connect (`.figma.ts`) — same blocker as every prior component
+- actual implementation (`breadcrumb.tsx`, `breadcrumb.stories.tsx`) — this is the SPEC section
+  only; no component code was written per instruction
+
+## Component — `Badge`
+
+Source: `src/components/ui/badge.tsx` (not yet built), stories:
+`src/components/ui/badge.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`665:2024`**
+"Badge", a real Figma **component set** (unlike Alert's three loose symbols) with one genuine
+`Type` variant property and 10 real values. Verified live via `get_design_context` on
+2026-09-05, which returns Figma's own generated TS union type verbatim:
+`"Default" | "Default_number" | "Destructive" | "Destructive_fill" | "Outline" | "Secondary" |
+"Secondary_icon" | "Secondary_number" | "Success" | "Info"`.
+
+Figma's own component description: *"Small inline label for status, count, or category. Type
+sets the color/semantics."* Per this project's already-established rule from the earlier
+Sonner/Toast and Table/Navigation-Menu naming investigation ("if Figma and generic shadcn docs
+disagree, Figma is the contract — generic docs are 6 variants, Figma has 10"), **all 10 Figma
+values are the contract**, not the smaller stock shadcn set.
+
+Confirmed structural/token facts from the live pull (container is always
+`inline-flex items-center justify-center rounded-full`):
+
+| Figma `Type` | code `variant` | bg token | fg token | height | note |
+| --- | --- | --- | --- | --- | --- |
+| Default | `default` | `--badge-background-default` | `--badge-foreground-default` | 22px | solid brand fill |
+| Success | `success` | `--badge-background-success` | `--badge-foreground-success` | 22px | soft/tinted |
+| Secondary | `secondary` | `--badge-background-secondary` | `--badge-foreground-secondary` | 22px | neutral fill |
+| Destructive | `destructive` | `--badge-background-destructive-soft` | `--badge-foreground-destructive` | 22px | soft/tinted — see token note below |
+| Outline | `outline` | none (no `bg-*` class in the pull at all — transparent) | `--badge-foreground-outline` | 22px | border only |
+| Secondary_icon | `secondaryIcon` | `--badge-background-default` | `--badge-foreground-default` | 22px | **name drift**: styled identically to `default` (brand fill), not `secondary` — see below |
+| Default_number | `defaultNumber` | `--badge-background-default` | `--badge-foreground-default` | 20px | solid fill, shorter height |
+| Destructive_fill | `destructiveFill` | `--badge-background-destructive` | `--badge-foreground-default` | 20px | **solid** red fill (vs. `destructive`'s soft tint) — reuses the light `foreground-default` text token for contrast on a dark fill, same as `default`/`defaultNumber` |
+| Secondary_number | `secondaryNumber` | none (border only, like `outline`) | `--badge-foreground-outline` | 20px | monospace label font (`font-family-mono`), smaller padding — see below |
+| Info | `info` | `--badge-background-info` | `--badge-foreground-info` | 22px | soft/tinted brand |
+
+- **`--badge/foreground-destructive-soft` naming artifact**: Figma's raw pull literally names the
+  `destructive` variant's text color `var(--badge\/foreground-destructive-soft, #e7000b)` — a
+  variable name containing an escaped slash, which does not exist as a real token in
+  `tokens.css`. The fallback value (`#e7000b`) is value-identical to the token that **does**
+  exist, `--badge-foreground-destructive` (chains to `--destructive-foreground` →
+  `--color-red-600` = `#e7000b`) — use the real, existing token; this is a Figma internal-path
+  export glitch, not a missing token
+- padding: every variant except `Secondary_number` uses `px-3 py-1` (Figma's raw pull names these
+  `--space-3`/`--space-1` directly, with fallbacks 8px/2px that **already match** this project's
+  real `--space-3`(8px)/`--space-1`(2px) — the first component where Figma's own variable names
+  need no digit-suffix correction). `Secondary_icon` additionally has a 4px gap between its icon
+  and label — this project's `--space-2` (4px), so Tailwind `gap-2`, **not** `gap-1` (which is
+  `--space-1` = 2px here) — an editing slip in an earlier draft of this SPEC wrote `gap-1` for a
+  4px value, caught and corrected during the builder step
+- `Secondary_number`'s padding is smaller and **does** need the usual digit-suffix correction:
+  raw pull gives `px-[var(--px-1,4px)]` / `py-[var(--py-0.5,2px)]` — 4px is this project's
+  `--space-2` (not `--space-1`, which is 2px) and 2px is `--space-1` — use `px-2 py-1`, not a
+  literal copy of the raw digit suffixes
+- height: 22px has no exact token in the `--height-*` scale (jumps `20`→`24`) — use a literal
+  `h-[22px]`, there is nothing to snap to. The three 20px variants (`defaultNumber`,
+  `destructiveFill`, `secondaryNumber`) **do** have an exact token, `--height-20`
+- text: `text-xs font-medium leading-4` (12px / 500 / 16px — `leading-4` now resolves correctly
+  to `--line-height-4` thanks to the project-wide line-height fix already shipped). `secondary
+  Number` uses `font-family-mono` (Geist Mono) instead of the default sans, everything else uses
+  the default sans — the only variant with a non-default font family
+- **`Secondary_icon` name drift, confirmed not a copy-paste in the SPEC sense but a real Figma
+  authoring inconsistency**: it is visually `default`-colored (brand orange fill), not
+  `secondary`-colored, despite its name — same class of drift as Button's Figma "Secondary" =
+  code `outlinePrimary`. Its only real distinguishing feature vs. plain `default` is the leading
+  16×16 `lucide/circle-check` icon + `gap-1` + the example label "Verified" (not "Label" like
+  every other example) — kept as its own contract value (matching Figma's real 10-value enum
+  1:1, per the already-established "Figma's full set is the contract" decision for Badge), but
+  the icon+gap treatment is scoped to this one variant, not generalized to "every variant accepts
+  an optional icon" (no other of the 10 examples shows one)
+
+**Three real bugs found and fixed while building this component, none part of Badge's own
+contract but all blocking it from rendering correctly:**
+
+1. `tokens.css` had `--badge-foreground-destructive: var(--color-white)` — white text, apparently
+   copy-pasted from the solid-fill button pattern, but this token is actually consumed by the
+   `destructive` **soft/tinted** badge background, not a solid fill. Confirmed via live computed
+   styles during the storybook step: white text on a pale pink tint is barely readable. Fixed to
+   `var(--destructive-foreground)` (the same solid red already used correctly by sibling tokens
+   like `--alert-border-destructive`/`--alert-foreground-destructive`), matching what this SPEC
+   and `badge.tsx` both already assumed it did.
+2. `--font-family-mono: Geist Mono` had no matching font asset anywhere in the repo —
+   `@fontsource/geist-mono` was never installed and `.storybook/preview.tsx` only imports Geist
+   Sans weights. Confirmed via `document.fonts` (no Geist Mono face registered) and Canvas
+   glyph-width measurement (proportional, not monospace) that `secondaryNumber`'s label was
+   silently falling back to the browser default font. Fixed: added `@fontsource/geist-mono` as a
+   dependency and imported its `400`/`500` weights (the only weights this repo currently uses) in
+   `preview.tsx`, mirroring the existing Geist Sans import pattern.
+3. Tailwind v4's automatic whole-project content scan (no `@source` restriction existed in
+   `globals.css`) was picking up this very SPEC's own Figma-raw-value prose strings (e.g. an
+   earlier draft's `var(--py-0.5,2px)`) as candidate utility classes and choking on the invalid
+   `--py-0.5` custom-property syntax, producing a Lightning CSS build warning. Fixed once,
+   project-wide, with `@source not '../../SPEC.md';` in `globals.css` — SPEC.md is documentation,
+   never a real class source, and will keep quoting raw Figma variable names in future component
+   sections
+
+### Contract
+
+No new dependency — `Badge` is a plain styled element (`<span>`), not a Radix primitive, same
+category as `Alert`/`Card`.
+
+| Part | Element | Notes |
+| --- | --- | --- |
+| `Badge` | `span` | `variant` prop, one of the 10 values in the table above; default `default`; content via `children` (this project's existing convention for text content, e.g. `Button`/`Alert`, not Figma's own generated `label` string-prop shape) |
+
+- `secondaryIcon`'s icon is a plain consumer-supplied child (e.g. an inline `<svg>`), same
+  free-form-icon pattern already established for `Alert` — not a dedicated icon prop
+- no `size` prop — Figma shows one fixed size per variant (22px or 20px, driven by which variant,
+  not a separate size axis)
+
+### Accessibility
+
+- `Badge` renders no interactive semantics — it is not a button or link in any of the 10
+  examples; nothing to focus or keyboard-navigate
+- color is never the only signal within a single badge — each variant always pairs its color with
+  visible text (or icon+text for `secondaryIcon`), so no additional non-color affordance is needed
+
+### Out of scope
+
+- generalizing the icon+`gap-1` treatment to every variant — only `secondaryIcon` demonstrates it
+- correcting `Secondary_icon`'s color-vs-name drift — kept as Figma names it, drift documented
+  above (same precedent as Button's Secondary/`outlinePrimary` drift)
+- a numeric-count-specific API (e.g. auto-formatting large numbers) for `defaultNumber`/
+  `secondaryNumber` — Figma shows static example text only, not a numeric-formatting contract
+- Code Connect (`.figma.ts`) — same blocker as every prior component
+- actual implementation (`badge.tsx`, `badge.stories.tsx`) — this is the SPEC section only; no
+  component code was written per instruction
+
+## Component — `Avatar`
+
+Source: `src/components/ui/avatar.tsx` (not yet built), stories:
+`src/components/ui/avatar.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`73:3473`** "Avatar"
+— outer documentation-page chrome ignored below. **Note: this outer frame's own description text
+("A modal dialog that interrupts the user with important content and expects a response.") is a
+Figma copy-paste error — it's word-for-word Alert Dialog's description, not Avatar's. Not used
+below**; the four sub-symbols each have their own, correct, specific descriptions instead. Four
+example symbols: **`455:365`** "Circle" (32×32, image, no border), **`3141:19830`** "Letters"
+(32×32, initials fallback, bordered), **`455:364`** "Square" (32×32, square corners, image),
+**`455:363`** "Avatar_group" (three overlapping 32×32 avatars). Verified live via
+`get_design_context` on 2026-09-05.
+
+Figma's own per-symbol descriptions: *Circle* — "Circular user avatar — image with initials/icon
+fallback." *Letters* — "Avatar showing user initials when no image is set." *Square* —
+"Square-cornered avatar variant." *Avatar_group* — "Overlapping stack of avatars for multiple
+users, with a +N overflow counter."
+
+Confirmed structural/token facts from the live pull:
+
+- size: 32×32 in every example → Tailwind `size-8`. Checked against the digit-suffix gotcha that
+  has bitten every prior component: this project's `space-8` **is** 32px, so `size-8` is correct
+  here without needing an arbitrary `var(--space-N)` override — the first size in this component
+  library where the bare Tailwind number and this project's remapped scale happen to agree
+- `Circle` (image avatar): `rounded-full`, **no border** — `<img class="object-cover rounded-full size-full">`
+- `Letters` (fallback avatar): `rounded-full border border-[var(--avatar-border,#e4e4e7)]
+  bg-[var(--avatar-background,white)]`, centered uppercase initials
+  `text-sm leading-4 text-[var(--avatar-foreground,#09090b)]` ("WW" in the example — two-letter
+  initials, not one)
+- `Square`: same image treatment as `Circle` but `rounded-[var(--radius-8,8px)]` instead of
+  `rounded-full` — exact scale match, no gap (unlike Alert/Alert Dialog's 10px case)
+- `Avatar_group`: three avatars in a row, each pulled left by `mr-[-8px]` onto the previous one.
+  **8px is this project's `--space-3`**, not `--space-2` (space-2 is 4px) — use `-mr-3`, not a
+  literal `-8px` or `-mr-2`, per the same "match by pixel value" rule as every prior component.
+  Border pattern: the **first** avatar in the stack has no border (nothing underneath it to
+  separate from); every **subsequent** one has `border border-[var(--avatar-border)]` so its edge
+  reads distinctly against the avatar it overlaps — this matches `Letters`' existing border
+  treatment being reused as a stacking separator, not a new token
+- the "+N overflow counter" mentioned in `Avatar_group`'s own Figma description **has no example
+  instance anywhere in this pull** (all three group avatars show real images, no counter badge) —
+  its shape, position, and trigger threshold are not shown; not building it from the description
+  text alone, see Out of scope
+
+### Contract
+
+**New dependency**: `@radix-ui/react-avatar` — not currently in `package.json`. Same tier as
+`@radix-ui/react-accordion`/`@radix-ui/react-alert-dialog`. Radix's `Avatar.Image` already
+implements the "show image if it loads, otherwise fall through" behavior that Figma's
+Circle-vs-Letters split describes — use it rather than hand-rolling image-error detection.
+
+| Part | Radix primitive | Notes |
+| --- | --- | --- |
+| `Avatar` | `AvatarPrimitive.Root` | `shape` prop: `circle` (default, `rounded-full`) \| `square` (`rounded-[var(--radius-8)]`); `flex size-8 overflow-hidden shrink-0` — **`flex` is required, not decorative**: Radix's `Avatar.Root` renders a `<span>` (`display: inline` by default), which ignores `width`/`height` and never clips `overflow-hidden` unless blockified — confirmed by live browser measurement during the storybook step (a bare `Avatar` rendered 64×64 unclipped instead of 32×32 circular until `flex` was added; it only "looked" correct wherever a flex/grid parent happened to blockify it, e.g. inside `AvatarGroup`) |
+| `AvatarImage` | `AvatarPrimitive.Image` | `size-full object-cover` — no border (matches `Circle`/`Square`) |
+| `AvatarFallback` | `AvatarPrimitive.Fallback` | `size-full flex items-center justify-center border border-[var(--avatar-border)] bg-[var(--avatar-background)] text-sm leading-4 text-[var(--avatar-foreground)] uppercase` — takes its own `shape` prop for corner rounding (no shared context with `Avatar` Root; a consumer using `shape="square"` must pass it to both, same as this project's other two-prop compounds) |
+| `AvatarGroup` | plain `div` wrapper (not a Radix primitive — Radix ships no group primitive) | `flex items-center [&>*:not(:first-child)]:border [&>*:not(:first-child)]:border-[var(--avatar-border)] [&>*:not(:last-child)]:-mr-3` |
+
+- no `size` prop beyond the one fixed 32×32 Figma shows — if a size scale is needed later, it's a
+  code-only extension, not in this contract
+- `AvatarFallback` initials are consumer-supplied text content (Radix requires manual text, e.g.
+  first-letter-of-first-and-last-name logic) — not computed by the component itself
+- `shape="square"` is a real, confirmed design-system extension beyond shadcn/ui's stock Avatar
+  (which is always circular) — keep it, it has its own named Figma symbol and description, same
+  "Figma-set is the contract, generic docs are anatomy-only" principle already applied to Badge
+
+### Accessibility
+
+- `AvatarImage` should always receive a meaningful `alt`; Radix does not enforce this — a
+  code-level requirement, not shown in Figma (Figma's own image layers have empty `alt=""`, which
+  is a Figma-canvas-rendering artifact, not a real accessibility recommendation)
+- `AvatarFallback` renders as plain text — no ARIA role needed, it's not interactive
+- no focus states apply — `Avatar` renders no interactive elements in any example
+
+### Out of scope
+
+- the `AvatarGroup` "+N overflow counter" — named in Figma's own description text but no example
+  instance shows its shape, position, or trigger threshold; not inventing it from prose alone
+- an automatic initials-generation helper (e.g. deriving "WW" from a full name) — Figma shows the
+  rendered result only, not the source logic; consumer supplies the initials text directly
+- a size scale beyond the one 32×32 example
+- Code Connect (`.figma.ts`) — same blocker as every prior component
+- actual implementation (`avatar.tsx`, `avatar.stories.tsx`) — this is the SPEC section only; no
+  component code was written per instruction
+
 ## Component — `Alert`
 
 Source: `src/components/ui/alert.tsx` (not yet built), stories:
@@ -743,3 +1066,256 @@ control, not worth hand-rolling.
 - icon-swap plumbing / a dedicated icon slot — items take arbitrary children
 - Code Connect (`.figma.ts`) — same Figma-Org-plan blocker as every component so far
 - actual implementation ships in this same PR — `toggle-group.tsx` + `toggle-group.stories.tsx`
+
+## Component — `Calendar`
+
+Source: `src/components/ui/calendar.tsx` (not yet built — see "Out of scope") · stories:
+`src/components/ui/calendar.stories.tsx` (not yet built)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", page frame **`73:3711`**
+"Calendar". **No live Figma MCP access this session** — this section is written from the LEAD's
+`FIGMA-BRIEF-calendar.md` (Figma MCP pull, 2026-09-06), not independently re-verified against a
+live node.
+
+`73:3711` shows **one component** (`Calendar`, a thin wrapper over `react-day-picker` v9 — new
+dependency, user-approved 2026-09-06) in several prop configurations, plus two Popover
+compositions. Figma's config symbols are **not separate components** — same "one component,
+several prop values" pattern as Alert's "Title only". Mapping (flag any of these being read as
+distinct components as drift):
+
+| Figma symbol / label | code |
+| --- | --- |
+| Calendar — base, single month (`502:3312`) | `<Calendar mode="single" captionLayout="dropdown" />` |
+| Range Calendar (`502:3314`) | `<Calendar mode="range" numberOfMonths={2} captionLayout="label" />` |
+| Month and Year Selector (`502:3321`) — "Month and Year" | `captionLayout="dropdown"` |
+| … "Month Only" | `captionLayout="dropdown-months"` |
+| … "Year Only" | `captionLayout="dropdown-years"` |
+| 2-month / Custom-Cell caption ("June 2025" centred) | `captionLayout="label"` (RDP default) |
+| Custom Cell Size (`1463:5909`) | `<Calendar className="[--cell-size:3rem]" captionLayout="label" />` — **no `size` prop** (see Cell size) |
+| "Dropdown" `<select>` shown under the calendars (`502:3321`) | Storybook `argTypes` select control on the story — **not** a `Select` component |
+| Date of Birth Picker (`502:3324`) | story-level `DatePickerDemo()` in `calendar.stories.tsx` — `Popover` + `<Calendar mode="single" captionLayout="dropdown" />` |
+| Date and Time Picker (`502:3327`) | story-level `DateTimePickerDemo()` — the DoB popover (narrower) + this repo's `Input type="time" step="1"` |
+
+The two pickers are **demo compositions, not new primitives** — small functions inside the
+stories file, exactly like `AccordionDemo` / `AlertDialogDemo`.
+
+Not added (user decision 2026-09-06): `date-fns` (the picker stories format the selected date with
+native `Intl.DateTimeFormat(undefined, { dateStyle: 'long' })`); `lucide-react` (chevrons are
+inline `<svg>`, like `accordion.tsx`). `react-day-picker` v9 does its own date math internally —
+there is no `date-fns` **peer** dependency to add. If `date-fns` shows up in the lockfile it is
+RDP's own bundled copy, which this repo neither imports from nor lists in `package.json`.
+
+### Contract
+
+Not yet implemented — `calendar.tsx` / `popover.tsx` do not exist (`src/components/ui/` currently
+has `accordion` `alert-dialog` `button` `card` `input`). This specifies what the builder
+implements, following shadcn's own RDP-v9 `Calendar` wrapper and this repo's Radix-primitive
+convention.
+
+**New dependencies**: `react-day-picker@^9`, `@radix-ui/react-popover@^1` (same tier as the four
+`@radix-ui/*` packages already in `package.json`).
+
+`Calendar` is `React.ComponentProps<typeof DayPicker>` intersected with `{ buttonVariant? }` — the
+full `DayPicker` prop surface passes through. In-scope props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `mode` | `"single" \| "multiple" \| "range"` | none (display-only) | passthrough; `selected` / `onSelect` types follow `mode` |
+| `selected` / `onSelect` | per `mode` | — | passthrough; v9 `onSelect(value, triggerDate, modifiers, e)` |
+| `captionLayout` | `"label" \| "dropdown" \| "dropdown-months" \| "dropdown-years"` | `"label"` | `label` = static "June 2025"; `dropdown` = month + year `<select>`; `dropdown-months` / `dropdown-years` = one `<select>` + one label |
+| `numberOfMonths` | `number` | `1` | `2` for the range view; RDP shows the prev chevron on the first month and the next chevron on the last only |
+| `disabled` | RDP `Matcher \| Matcher[]` | — | matching days get `disabled` + `aria-disabled`, non-interactive |
+| `showOutsideDays` | `boolean` | `true` | adjacent-month leading/trailing days rendered at `opacity-50` |
+| `startMonth` / `endMonth` | `Date` | — | bound month nav and the `dropdown-years` range; the DoB picker sets these |
+| `buttonVariant` | this repo's `Button` `variant` | `"ghost"` | nav-button style (shadcn v9 prop) |
+| `className` | `string` | — | on the RDP root; carries `[--cell-size:…]` overrides |
+| `classNames` | `Partial<ReturnType<typeof getDefaultClassNames>>` | — | per-part class overrides (RDP passthrough) |
+| `components` | RDP `CustomComponents` | wrapper presets `Chevron` (inline `<svg>`) | consumer may extend / override |
+| …rest | `DayPickerProps` | — | `month`, `defaultMonth`, `weekStartsOn`, `min`, `max`, `required`, `locale`, `formatters`, … all pass through |
+
+**No `size` prop.** Day / weekday / nav cell scale is the shadcn-v9 `--cell-size` CSS custom
+property set on the RDP root: default `[--cell-size:2rem]` (32px — matches Figma's 32px day
+cell). Per-instance override is a `className`, e.g. Custom Cell Size passes
+`className="[--cell-size:3rem]"` (≈48px). A bespoke `size` enum would duplicate a native
+mechanism for a single story — not added.
+
+Structure / tokens a reviewer checks (resolve every px→key by **value**, not digit — this repo's
+`--space-N` / `--height-N` / `--radius-N` scales differ from stock Tailwind, the same gotcha
+already documented for Button / Accordion / Alert / Alert Dialog):
+
+- **container** (RDP `root`): `bg-popover-background border border-popover-border
+  rounded-[var(--radius-12)] p-4 shadow-[0_1px_3px_0_rgba(0,0,0,0.1)]`, `flex flex-col gap-5`
+  (`p-4` = `--space-4` = 12px; `gap-5` = `--space-5` = 16px; the shadow value equals `Card`'s)
+- **months wrapper** (2-month view): `gap-5` (16px) between months
+- **nav buttons** (`button_previous` / `button_next`): `size-[var(--cell-size)]` (32px),
+  `rounded-8` (Figma 6px → nearest repo step, +2px), inline `<svg>` chevron 16px `currentColor`,
+  hover `bg-accent` (from `buttonVariant="ghost"`), `focus-visible:ring-2 focus-visible:ring-ring`
+- **caption `label`**: centred `text-sm font-medium text-foreground` ("June 2025"); text comes
+  from RDP's default formatter (English) — a `formatters` + `Intl.DateTimeFormat` override is
+  available but not needed to match Figma
+- **caption `dropdown*`**: RDP native `<select>` per unit, styled as a pill —
+  `h-[var(--height-32)] rounded-8 border border-border bg-background text-sm font-medium
+  text-foreground` + inline `<svg>` down-chevron ≈12px; **keep the native `<select>`** (see a11y),
+  style via `classNames`
+- **weekday header**: `text-xs font-normal text-muted-foreground`, cell width `--cell-size`,
+  labels from RDP (Su Mo Tu We Th Fr Sa)
+
+Day-cell states (RDP modifier → styling; `text-sm font-normal`, box is `--cell-size` square):
+
+| State | RDP modifier | Styling (tokens) |
+| --- | --- | --- |
+| default | — | `text-foreground` |
+| hover | — | `bg-accent text-accent-foreground` |
+| selected (single / multiple) | `selected` | `bg-primary text-primary-foreground rounded-8` |
+| today (not selected) | `today` | `bg-accent text-accent-foreground rounded-8` |
+| outside month | `outside` | `text-muted-foreground opacity-50` (only when `showOutsideDays`) |
+| disabled | `disabled` | `text-muted-foreground opacity-50 pointer-events-none` + `aria-disabled` |
+| range start | `range_start` | `bg-primary text-primary-foreground rounded-l-8` (full `rounded-8` when start === end) |
+| range end | `range_end` | `bg-primary text-primary-foreground rounded-r-8` |
+| range middle | `range_middle` | `bg-accent text-accent-foreground` — square, continuous band |
+| focus-visible (keyboard) | `focused` | `focus-visible:ring-2 focus-visible:ring-ring` on the day button |
+
+`selected` wins over `today` when both apply. No `loading` / pressed / active state — RDP days are
+plain buttons and Figma shows none.
+
+### Story compositions (demo-level, in `calendar.stories.tsx` — not exported primitives)
+
+- **`DatePickerDemo`** (`502:3324`): label "Date of birth" (`text-sm font-medium`) above a
+  `Popover`. Trigger = `Button variant="outline"` ≈`w-[240px]`, `justify-between`; left text
+  "Select a date" (`text-muted-foreground`) when empty, else
+  `Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(date)`; trailing inline-`<svg>`
+  chevron 16px. `PopoverContent className="w-auto p-0"` wraps
+  `<Calendar mode="single" captionLayout="dropdown" startMonth={…} endMonth={…} />`. Selecting a
+  day sets the story's `open` state to `false` (closes the popover).
+- **`DateTimePickerDemo`** (`502:3327`): `flex gap-5`. Left = `DatePickerDemo`'s popover, narrower
+  (≈`w-[150px]`). Right = label "Time" + `<Input type="time" step="1" defaultValue="10:30:00" />`
+  — this repo's existing `Input`, **no change to `input.tsx`** (`type` and `className` already
+  pass through); optional `className="[&::-webkit-calendar-picker-indicator]:hidden"` if the
+  native time icon looks off.
+
+### Token resolution & open gaps for LEAD
+
+- **Figma `radius-lg` 10px** (calendar container, and Popover content) — no `--radius-10` in
+  `tokens.css`. Spec'd as **`rounded-[var(--radius-12)]`** (+2px), matching the same nearest-fit
+  already chosen for `Alert` and `Alert Dialog` at this exact 10px value. (`Card` independently
+  snapped its own non-matching radius to `--radius-14`.) Revisit if a `--radius-10` token is added.
+- **Figma nav-button radius 6px** — no `--radius-6`; `--radius-4` and `--radius-8` are
+  equidistant. Spec'd as **`rounded-8`** to match this repo's `Button` corner and the day cells.
+  Flag, not an exact match.
+- **6px pill gap** (between caption `<select>`s) has no key in this repo's spacing scale
+  (`--space-1` 2px / `--space-2` 4px / `--space-3` 8px); `gap-[6px]` or snap to `gap-2` / `gap-3`
+  — builder's call, cosmetic.
+- **`--cell-size` default `2rem`** is a literal, not a token — 32px matches Figma, no token needed.
+
+### Accessibility
+
+- `react-day-picker` v9 renders a real `role="grid"` table: `gridcell` day buttons with per-day
+  `aria-label` and `aria-selected`, roving `tabindex`, and built-in keyboard nav (arrow keys,
+  Home / End, PageUp / PageDown for months, Shift+PageUp / PageDown for years). Rely on RDP — do
+  not reimplement grid semantics or key handling.
+- nav buttons are real `<button>`s with RDP-supplied `aria-label`s and `aria-disabled` at the
+  `startMonth` / `endMonth` bounds; add the house `focus-visible:ring-2 focus-visible:ring-ring`.
+- day buttons get the same `focus-visible` ring; focus **movement** is RDP's, the ring is ours.
+- `captionLayout="dropdown*"` uses native `<select>` — keyboard/AT-accessible for free, RDP gives
+  each an accessible name ("Choose the Month" / "Choose the Year"). Do **not** swap in a custom
+  listbox (out of scope).
+- reduced-motion: `Calendar` has no animation of its own (month nav is instant) — nothing to gate.
+- picker trigger (story-level): the trigger `Button` must carry an accessible name — the visible
+  label plus `aria-label` / `aria-labelledby` tying it to the field label ("Date of birth" /
+  "Time"), since "Select a date" alone is ambiguous out of context.
+
+### Out of scope
+
+- `calendar.tsx` / `calendar.stories.tsx` implementation — this is the SPEC section only; no
+  component code was written per instruction
+- the two picker compositions as shipped primitives — they are demo functions in
+  `calendar.stories.tsx`, not exports; `input.tsx` is not modified
+- a standalone `Select` for the caption — RDP's native `<select>` is kept and styled via
+  `classNames`
+- i18n: `locale` prop, `date-fns` locale, localized month / weekday names beyond the browser
+  default; RDP `formatters` not customised (defaults are English, which matches Figma)
+- time-zone handling — JS `Date` / RDP operate in local time only; no TZ prop
+- multi-month range beyond `numberOfMonths={2}`
+- week-number column, `ISOWeek`, calendar footer
+- exact radius (10px / 6px) — documented nearest-fit, see "open gaps" above
+- Code Connect (`.figma.ts`) — same Figma-Org-plan blocker as every prior component
+
+## Component — `Popover`
+
+Source: `src/components/ui/popover.tsx` (not yet built) · stories:
+`src/components/ui/popover.stories.tsx` (not yet built — basic open/closed), also exercised by the
+picker compositions in `calendar.stories.tsx`
+
+### Figma
+
+No dedicated Popover page. Popover appears only as the shell of the two picker compositions on
+`73:3711` (DoB picker `502:3324`, Date & Time picker `502:3327`), per `FIGMA-BRIEF-calendar.md` —
+**no live Figma MCP access this session**. There is no variant axis: Figma shows one open popover
+containing a `Calendar`. Everything visual inside belongs to `Calendar`; `Popover` contributes the
+surface + positioning only.
+
+### Contract
+
+**New dependency**: `@radix-ui/react-popover@^1`. Thin wrapper, shadcn-style, matching this repo's
+`alert-dialog.tsx` conventions — **manual `data-[state]` transitions** (this repo has no
+`tailwindcss-animate` plugin; `tailwind.config.cjs` sets `plugins: []`).
+
+| Part | Radix primitive | Notes |
+| --- | --- | --- |
+| `Popover` | `PopoverPrimitive.Root` | re-export; `modal` passthrough (Radix default `false`) |
+| `PopoverTrigger` | `PopoverPrimitive.Trigger` | re-export; usually `asChild` + this repo's `Button` |
+| `PopoverAnchor` | `PopoverPrimitive.Anchor` | re-export; optional — positioning ref when it differs from the trigger |
+| `PopoverContent` | `PopoverPrimitive.Portal` › `PopoverPrimitive.Content` | styled; forwards `align` / `sideOffset` |
+
+`PopoverContent` defaults & styling:
+
+- `align="center"`, `sideOffset={4}` (shadcn defaults); `side="bottom"` (Radix default);
+  `avoidCollisions` on (Radix default) — auto-flips near the viewport edge
+- classes: `z-50 w-72 rounded-[var(--radius-12)] border border-popover-border
+  bg-popover-background p-4 text-popover-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.1)]
+  outline-none` — `--popover-background` / `--popover-border` / `--popover-foreground` all exist
+  in `tokens.css` and flip for dark + the `applicant` brand, so `Popover` stays theme-agnostic
+- open/close transition (mirrors `alert-dialog.tsx`): `transition-[opacity,transform] duration-200
+  data-[state=closed]:opacity-0 data-[state=closed]:scale-95 data-[state=open]:opacity-100
+  data-[state=open]:scale-100`
+- the picker compositions override `className="w-auto p-0"` so the content shrink-wraps the
+  `Calendar`
+
+### Interaction states
+
+| Trigger | Behaviour |
+| --- | --- |
+| rest | trigger only; content not mounted |
+| open (click / Enter / Space) | Radix mounts content in a portal, positions it, moves focus into the content (`onOpenAutoFocus`) |
+| Esc | closes; focus returns to the trigger |
+| outside pointer-down / focus leaves content | closes; focus returns to the trigger |
+| focus-visible | the trigger uses whatever `focus-visible` ring its own element defines (the `Button` ring when `asChild` + `Button`); `Popover` adds none |
+| disabled / loading | not applicable — `Popover` has no such state; a disabled trigger is the consumer's `Button` |
+
+### Accessibility
+
+- **Focus trap**: only when `Popover modal` is set. Radix default is **non-modal**
+  (`modal={false}`) — focus is *managed* (into content on open, back to trigger on close) but not
+  *trapped*, there is no scroll-lock, and the background stays interactive. The pickers use the
+  non-modal default; selecting a day sets the story's `open` to `false`, closing the popover and
+  restoring focus.
+- **Esc** always closes and restores focus, in both modes.
+- **Labelling**: Radix Popover has no `Title` / `Description` primitive. Radix sets the trigger's
+  `aria-haspopup` / `aria-expanded` / `aria-controls` and gives the content an `id`; it does not
+  auto-label the content. For the pickers the `Calendar` grid is self-describing; the trigger
+  `Button` carries the accessible name (see Calendar › Accessibility).
+- reduced-motion: the opacity/scale transition should respect `prefers-reduced-motion`, consistent
+  with `Button` / `Alert Dialog` notes; exact easing/duration is a code decision (no motion spec
+  in Figma).
+
+### Out of scope
+
+- `popover.tsx` / `popover.stories.tsx` implementation — SPEC section only
+- `PopoverArrow` — not in Figma, not exported (can be added later)
+- `Title` / `Description` sub-parts — Radix Popover has none; labelling is the consumer's job
+- a custom focus trap in non-modal mode — pass Radix `modal` if a trap is required
+- `tailwindcss-animate` enter/exit keyframes — this repo uses manual `data-[state]` transitions
+- exact radius (10px `radius-lg`) — same documented `--radius-12` nearest-fit as `Calendar`
+- Code Connect (`.figma.ts`) — same blocker as every prior component

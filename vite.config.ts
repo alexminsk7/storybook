@@ -13,6 +13,8 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [tailwindcss(), react()],
+  // `@/…` alias for the shadcn CLI output (`@/lib/utils`, `@/components/ui/*`).
+  resolve: { alias: { '@': path.resolve(dirname, 'src') } },
   test: {
     projects: [{
       extends: true,

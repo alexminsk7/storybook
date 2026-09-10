@@ -7,8 +7,15 @@
  * emits v4-native @theme output.
  */
 @import 'tailwindcss';
+/* shadcn v4 components use tw-animate-css utilities (animate-in, fade-in-0, zoom-in-95, …). */
+@import 'tw-animate-css';
 @import './tokens.css';
 @config '../../tailwind.config.cjs';
+/* SPEC.md quotes Figma's raw (sometimes invalid, e.g. "--py-0.5") variable names in prose for
+   documentation purposes — Tailwind v4's automatic project-wide content scan picks those up as
+   candidate classes and Lightning CSS chokes on the invalid custom-property syntax. Exclude it;
+   it's documentation, never a real class source. */
+@source not '../../SPEC.md';
 
 /* Storybook renders stories straight into the iframe body — carry the themed
    surface so light/dark and the brand overlay are visible in stories and docs. */
