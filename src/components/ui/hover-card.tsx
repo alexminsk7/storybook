@@ -4,6 +4,11 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { HoverCard as HoverCardPrimitive } from "radix-ui"
 
+/**
+ * Rich preview that opens on hover/focus of a trigger — user cards, link previews. Not for
+ * essential content (touch devices never see it). Stock shadcn/ui on Radix HoverCard; not yet
+ * reconciled with Figma.
+ */
 function HoverCard({
   ...props
 }: React.ComponentProps<typeof HoverCardPrimitive.Root>) {

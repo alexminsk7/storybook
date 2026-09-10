@@ -4,6 +4,13 @@ import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { cn } from '../../lib/utils';
 import { buttonVariants } from './button';
 
+/**
+ * Modal that interrupts the user to confirm an important or destructive action and expects a
+ * response — use `Dialog` for anything dismissible. Compound parts on Radix AlertDialog
+ * (`AlertDialogContent`, `…Header`, `…Footer`, `…Action`, `…Cancel`); focus trap and Escape
+ * handling come from Radix. Reconciled with Figma frame `73:5720` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in
+ * SPEC.md § Alert Dialog.
+ */
 const AlertDialog = AlertDialogPrimitive.Root;
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;

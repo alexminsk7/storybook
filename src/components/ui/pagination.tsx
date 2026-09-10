@@ -8,6 +8,11 @@ import {
 
 import { buttonVariants, type Button } from "@/components/ui/button"
 
+/**
+ * Page navigation links: `PaginationPrevious` / `PaginationNext`, numbered `PaginationLink`s
+ * (`isActive` for the current page) and `PaginationEllipsis`. Plain links — wire `href` or
+ * `onClick` yourself. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav

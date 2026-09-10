@@ -21,6 +21,12 @@ const alertVariants = cva(
 
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof alertVariants> {}
 
+/**
+ * Inline contextual message that sits in the document flow (not a toast). `variant`
+ * `default` | `destructive`; "title only" is just `AlertDescription` omitted. The icon is a
+ * free-form first child (`<svg>`), not a prop. Renders `role="alert"`. Reconciled with Figma
+ * frame `73:3398` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Alert.
+ */
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
   ({ className, variant, ...props }, ref) => (
     <div ref={ref} role="alert" className={cn(alertVariants({ variant, className }))} {...props} />

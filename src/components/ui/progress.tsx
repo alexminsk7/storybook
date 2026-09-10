@@ -4,6 +4,10 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Progress as ProgressPrimitive } from "radix-ui"
 
+/**
+ * Determinate progress bar; `value` 0–100. Stock shadcn/ui on Radix Progress; not yet
+ * reconciled with Figma.
+ */
 function Progress({
   className,
   value,

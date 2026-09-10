@@ -5,6 +5,11 @@ import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 import { ContextMenu as ContextMenuPrimitive } from "radix-ui"
 
+/**
+ * Right-click (or long-press) menu anchored to the pointer. Same item vocabulary as
+ * `DropdownMenu` — items, checkbox and radio items, labels, separators, submenus. Stock
+ * shadcn/ui on Radix ContextMenu; not yet reconciled with Figma.
+ */
 function ContextMenu({
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {

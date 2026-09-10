@@ -2,6 +2,10 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Separator as SeparatorPrimitive } from "radix-ui"
 
+/**
+ * Thin divider line, `orientation` horizontal (default) or vertical; decorative by default.
+ * Stock shadcn/ui on Radix Separator; not yet reconciled with Figma.
+ */
 function Separator({
   className,
   orientation = "horizontal",

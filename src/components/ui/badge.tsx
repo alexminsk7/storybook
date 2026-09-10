@@ -34,6 +34,12 @@ const badgeVariants = cva('inline-flex items-center justify-center rounded-full 
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {}
 
+/**
+ * Small inline label for status, count or category. All ten Figma `Type` values are the
+ * contract: `default`, `success`, `secondary`, `destructive`, `outline`, `secondaryIcon`,
+ * `defaultNumber`, `destructiveFill`, `secondaryNumber`, `info`. Not interactive. Reconciled
+ * with Figma component set `665:2024` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Badge.
+ */
 const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, variant, ...props }, ref) => (
   <span ref={ref} className={cn(badgeVariants({ variant, className }))} {...props} />
 ));

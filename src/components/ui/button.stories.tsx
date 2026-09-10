@@ -41,18 +41,20 @@ export const Hover: Story = {
   // actually engages. storybook-addon-pseudo-states forces the pseudo-class directly by
   // rewriting stylesheets, which works reliably in both story and docs view, and is what
   // Chromatic's own docs recommend for snapshotting pseudo-states.
-  parameters: { pseudo: { hover: true } },
+  parameters: { pseudo: { hover: true }, docs: { description: { story: 'Web-only state — Figma documents Default / Pressed / Disabled but no hover. Forced with `storybook-addon-pseudo-states`.' } } },
 };
 
 export const Active: Story = {
-  parameters: { pseudo: { active: true } },
+  parameters: { pseudo: { active: true }, docs: { description: { story: 'Figma State=Pressed: opacity 80%, base colours unchanged.' } } },
 };
 
 export const Disabled: Story = {
+  parameters: { docs: { description: { story: 'Figma State=Disabled: opacity 60% + `pointer-events: none`; renders the native `disabled` attribute.' } } },
   args: { disabled: true },
 };
 
 export const Loading: Story = {
+  parameters: { docs: { description: { story: 'Code-only: spinner, `aria-busy`, and the button is disabled while loading.' } } },
   args: { loading: true },
 };
 
@@ -85,6 +87,7 @@ export const Destructive: Story = {
 };
 
 export const XL: Story = {
+  parameters: { docs: { description: { story: 'Code-only size (56px), one step above `lg`; not in the Figma set.' } } },
   args: { size: 'xl' },
 };
 

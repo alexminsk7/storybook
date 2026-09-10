@@ -33,7 +33,7 @@ export const Active: Story = {
   name: 'Active (focus)',
   // :focus is a pseudo-class — forced via storybook-addon-pseudo-states, same reasoning
   // as Button's Hover/Active (see button.stories.tsx).
-  parameters: { pseudo: { focus: true } },
+  parameters: { pseudo: { focus: true }, docs: { description: { story: 'Figma "Active (focus ring)". Uses `:focus`, not `:focus-visible` — Figma makes no keyboard/pointer distinction.' } } },
 };
 
 export const Hover: Story = {
@@ -41,13 +41,15 @@ export const Hover: Story = {
   // No --input-border-hover token exists in the design system — Input intentionally has
   // no distinct hover look, so this renders identically to Default. That's the real
   // :hover state (forced via the pseudo-states addon), not a bug.
-  parameters: { pseudo: { hover: true } },
+  parameters: { pseudo: { hover: true }, docs: { description: { story: 'Identical to Default on purpose: the design system defines no `--input-border-hover` token.' } } },
 };
 
 export const Disabled: Story = {
+  parameters: { docs: { description: { story: 'Opacity-only, same convention as Button; native `disabled` attribute.' } } },
   args: { disabled: true, defaultValue: 'Can’t edit this' },
 };
 
 export const Error: Story = {
+  parameters: { docs: { description: { story: 'Code-only axis: `error` sets `aria-invalid` and swaps the border/ring to the destructive colour.' } } },
   args: { error: true, defaultValue: 'invalid@' },
 };

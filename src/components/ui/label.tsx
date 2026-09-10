@@ -4,6 +4,10 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Label as LabelPrimitive } from "radix-ui"
 
+/**
+ * Accessible caption for a form control — link it with `htmlFor` to the control's `id`.
+ * Fades when the peer control is disabled. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Label({
   className,
   ...props

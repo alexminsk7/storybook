@@ -5,6 +5,11 @@ import { cn } from "@/lib/utils"
 import { XIcon } from "lucide-react"
 import { Dialog as SheetPrimitive } from "radix-ui"
 
+/**
+ * Panel that slides in from a screen edge (`side` right | left | top | bottom) over a scrim —
+ * settings, filters, secondary forms. Same compound parts as `Dialog`. Stock shadcn/ui on
+ * Radix Dialog; not yet reconciled with Figma.
+ */
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }

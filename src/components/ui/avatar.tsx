@@ -27,6 +27,13 @@ export interface AvatarProps
   extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>,
     VariantProps<typeof avatarVariants> {}
 
+/**
+ * User avatar: image with an initials fallback. `shape` `circle` (default) | `square` — a
+ * design-system extension over stock shadcn; `AvatarFallback` takes its own `shape`. Always
+ * give `AvatarImage` a meaningful `alt`. `AvatarGroup` stacks several with an overlap.
+ * One fixed 32px size. Reconciled with Figma frame `73:3473` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in
+ * SPEC.md § Avatar.
+ */
 const Avatar = React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Root>, AvatarProps>(
   ({ className, shape, ...props }, ref) => (
     <AvatarPrimitive.Root ref={ref} className={cn(avatarVariants({ shape }), className)} {...props} />

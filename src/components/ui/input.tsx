@@ -6,6 +6,13 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   error?: boolean;
 }
 
+/**
+ * Single-line text field. One fixed 44px height matching `Button`; `error` drives
+ * `aria-invalid` and the destructive border/ring. Focus ring uses `:focus` (not
+ * `:focus-visible`) on purpose — Figma's "Active" state makes no keyboard/pointer distinction.
+ * Brings no label of its own: pair it with `Label`. Reconciled with Figma frame `520:3062`
+ * (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Input.
+ */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, error = false, disabled, ...props }, ref) => {
     return (

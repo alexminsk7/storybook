@@ -42,6 +42,7 @@ export const Circle: Story = {
 };
 
 export const Fallback: Story = {
+  parameters: { docs: { description: { story: 'The image URL is deliberately broken so Radix\'s real image-error path shows `AvatarFallback`.' } } },
   // Deliberately-broken src so Radix's real image-error fallback fires — AvatarFallback is
   // not rendered standalone, it's Avatar's actual fallback path for a failed image load.
   render: (args) => (
@@ -53,6 +54,7 @@ export const Fallback: Story = {
 };
 
 export const Square: Story = {
+  parameters: { docs: { description: { story: '`shape="square"` must be passed to both `Avatar` and `AvatarFallback` — the fallback does not read it from context.' } } },
   // AvatarFallback takes its own `shape` prop — it does not read Avatar Root's shape via
   // context, so both need `shape="square"` to stay in sync. Shown here with an avatar that
   // loads (AvatarImage) next to one that fails (AvatarFallback) so both corner treatments
@@ -73,6 +75,7 @@ export const Square: Story = {
 };
 
 export const Group: Story = {
+  parameters: { docs: { description: { story: '`AvatarGroup` overlaps its children; every avatar after the first gets a border to read against the one beneath.' } } },
   name: 'Avatar Group',
   render: (args) => (
     <AvatarGroup>

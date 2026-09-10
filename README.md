@@ -33,10 +33,18 @@ npm run lint
 
 ## Components
 
-`src/components/ui/` — `button`, `card`, `input`. Each has a `.stories.tsx` with a story per
-variant and per state. `Foundations/Overview` shows all four theme × brand combinations.
+44 components in `src/components/ui/`, each with a `.stories.tsx`. **The Storybook is the
+documentation**: every component has a Docs page (intro, props table generated from the
+TypeScript types, every story rendered live) — <https://storybook-dqk.pages.dev>.
+`Foundations/Overview` shows the four theme × brand combinations side by side.
 
-The Button contract, its Figma mapping, and the spec of record live in [`SPEC.md`](SPEC.md).
+| Tier | Components | State |
+| --- | --- | --- |
+| Reconciled with Figma | `accordion` `alert` `alert-dialog` `avatar` `badge` `breadcrumb` `button` `calendar` `card` `fab` `input` `popover` `toggle-group` | measured against the Figma frames; contract per component in [`SPEC.md`](SPEC.md) |
+| Stock shadcn/ui | the other 31 (`dialog`, `select`, `table`, `tabs`, `sheet`, `tooltip`, …) | imported via the shadcn CLI; colours come from the token layer, **spacing/heights not yet reconciled** with Figma |
+
+The design contract — Figma node, token mapping, a11y decisions, out-of-scope list — lives in
+[`SPEC.md`](SPEC.md), one section per reconciled component.
 
 ## CI / deploy
 

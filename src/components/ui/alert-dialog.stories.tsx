@@ -54,5 +54,6 @@ export const Default: Story = {
 };
 
 export const Open: Story = {
+  parameters: { docs: { description: { story: 'Figma `State=open`. Focus is trapped inside; Escape and the Cancel action close it.' } } },
   render: () => <AlertDialogDemo defaultOpen />,
 };

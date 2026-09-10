@@ -27,6 +27,11 @@ const toggleVariants = cva(
   }
 )
 
+/**
+ * Two-state button (`pressed`) for a single option such as Bold; `variant` `default` |
+ * `outline`, `size` `sm` | `default` | `lg`. For a set of them use `ToggleGroup`. Stock
+ * shadcn/ui on Radix Toggle; not yet reconciled with Figma.
+ */
 function Toggle({
   className,
   variant,

@@ -61,6 +61,13 @@ export interface ButtonProps
   loading?: boolean;
 }
 
+/**
+ * Primary interactive control. Eight Figma types map to `variant` (`default`, `secondary`,
+ * `outline`, `outlinePrimary`, `ghost`, `ghostPrimary`, `link`, `destructive`); pressed and
+ * disabled are opacity-only, exactly as in Figma. `size` `sm`/`lg`/`xl`, `loading` and
+ * `asChild` are code-only extensions. Reconciled with Figma component set `73:3681`
+ * (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Button.
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, loading = false, disabled, children, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';

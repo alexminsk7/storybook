@@ -15,6 +15,11 @@ function TooltipProvider({
   )
 }
 
+/**
+ * Short text hint shown on hover/focus of a trigger — for icon buttons and abbreviations,
+ * never for essential content. Wrap a tree in `TooltipProvider` once. Stock shadcn/ui on
+ * Radix Tooltip; not yet reconciled with Figma.
+ */
 function Tooltip({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {

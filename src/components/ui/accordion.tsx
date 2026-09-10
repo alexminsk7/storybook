@@ -3,6 +3,12 @@ import * as AccordionPrimitive from '@radix-ui/react-accordion';
 
 import { cn } from '../../lib/utils';
 
+/**
+ * Vertically stacked collapsible panels (FAQ pattern), single-open by default. Compound
+ * parts on Radix Accordion: `AccordionItem` → `AccordionTrigger` + `AccordionContent`.
+ * Keyboard navigation, `aria-expanded` and focus handling come from Radix. Reconciled with
+ * Figma frame `73:3394` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Accordion.
+ */
 const Accordion = AccordionPrimitive.Root;
 
 const AccordionItem = React.forwardRef<

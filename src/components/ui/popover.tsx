@@ -3,6 +3,12 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { cn } from '../../lib/utils';
 
+/**
+ * Floating, non-modal panel anchored to a trigger — for pickers, small forms and rich hints.
+ * Compound parts on Radix Popover: `PopoverTrigger`, `PopoverContent`, `PopoverAnchor`.
+ * Content is portalled; Escape and outside-click dismiss. Reconciled with the Figma Popover
+ * frame; contract in SPEC.md § Popover.
+ */
 const Popover = PopoverPrimitive.Root;
 
 const PopoverTrigger = PopoverPrimitive.Trigger;

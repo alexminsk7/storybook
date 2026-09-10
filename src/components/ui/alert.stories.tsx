@@ -58,6 +58,7 @@ export const Default: Story = {
 // "Title only" per SPEC.md is not a separate variant — it's the `default` variant with
 // AlertDescription simply omitted.
 export const TitleOnly: Story = {
+  parameters: { docs: { description: { story: 'Not a separate variant — the `default` styling with `AlertDescription` omitted.' } } },
   name: 'Title only',
   render: (args) => (
     <Alert {...args} className="w-96">
@@ -68,6 +69,7 @@ export const TitleOnly: Story = {
 };
 
 export const Destructive: Story = {
+  parameters: { docs: { description: { story: 'Border, icon and text switch to the destructive colour; the background stays the default surface, as in Figma.' } } },
   args: { variant: 'destructive' },
   render: (args) => (
     <Alert {...args} className="w-96">

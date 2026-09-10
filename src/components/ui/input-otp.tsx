@@ -3,6 +3,11 @@ import { cn } from "@/lib/utils"
 import { OTPInput, OTPInputContext } from "input-otp"
 import { MinusIcon } from "lucide-react"
 
+/**
+ * One-time-code input: `maxLength` slots grouped with `InputOTPGroup` / `InputOTPSlot` and an
+ * optional `InputOTPSeparator`; paste and keyboard navigation handled by the `input-otp`
+ * library. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function InputOTP({
   className,
   containerClassName,

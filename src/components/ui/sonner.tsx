@@ -10,6 +10,10 @@ import {
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 
+/**
+ * Toast notifications. Mount `<Toaster />` once, then call `toast('…')` from `sonner`
+ * anywhere; follows the app theme. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
 

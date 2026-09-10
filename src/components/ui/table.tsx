@@ -3,6 +3,11 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
+/**
+ * Semantic data table: `TableHeader` / `TableBody` / `TableFooter` > `TableRow` >
+ * `TableHead` / `TableCell`, plus `TableCaption`. Styling only — sorting, selection and
+ * pagination are up to the consumer. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div

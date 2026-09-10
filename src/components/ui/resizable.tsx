@@ -4,6 +4,11 @@ import { cn } from "@/lib/utils"
 import { GripVerticalIcon } from "lucide-react"
 import * as ResizablePrimitive from "react-resizable-panels"
 
+/**
+ * Split layout with draggable dividers: `ResizablePanelGroup` (`orientation`) >
+ * `ResizablePanel`s separated by `ResizableHandle` (`withHandle` shows a grip). Built on
+ * react-resizable-panels. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function ResizablePanelGroup({
   className,
   ...props

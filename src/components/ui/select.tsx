@@ -5,6 +5,11 @@ import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { Select as SelectPrimitive } from "radix-ui"
 
+/**
+ * Single-value picker in a dropdown: `SelectTrigger` + `SelectValue`, `SelectContent` with
+ * `SelectGroup` / `SelectLabel` / `SelectItem`. Typeahead and keyboard navigation from Radix.
+ * Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {

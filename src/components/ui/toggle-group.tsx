@@ -16,6 +16,13 @@ import { cn } from '../../lib/utils';
 const toggleGroupItemClass =
   'inline-flex items-center justify-center h-[var(--height-44)] rounded-8 px-4 py-3 text-sm font-medium leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.1)] whitespace-nowrap bg-[var(--secondary)] text-[var(--button-foreground-filled)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-60 data-[state=on]:bg-button-background data-[state=on]:text-button-foreground';
 
+/**
+ * Segmented control: a row of `ToggleGroupItem`s where the selected one carries the brand fill
+ * and the rest the neutral fill. `type="single"` (the Figma case) or `"multiple"`. Roving
+ * tabindex, arrow-key navigation and `aria-checked`/`aria-pressed` come from Radix. Icon-only
+ * items need an `aria-label`. Reconciled with Figma "Icon Group" `3223:37201`
+ * (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Toggle Group.
+ */
 const ToggleGroup = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root>
