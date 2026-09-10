@@ -49,6 +49,15 @@ Figma (`opacity-80` / `opacity-60`, base colours unchanged); the code matches
 hover state). Not in the Figma set: `xl` size, `loading`, `asChild` — all code-only extensions,
 commented as such.
 
+Re-verified 2026-09-06 against node **`402:654`** (the current "Button" documentation frame, a
+fuller successor to `72:2719`) via `get_metadata` + `get_design_context`: component set `73:3681`
+is unchanged — same 8 `Type` × 3 `State`, same opacity-only Pressed/Disabled — so `button.tsx`
+needs no change. The 402:654 frame also carries three Button-family symbols that are **not** part
+of set `73:3681`: **`3102:18442`** "FAB Button" and **`3223:37201`** "Icon Group" are specced as
+their own components below; **`3115:18877`** "CTA Button" is just the `default` `Button` at
+`w-full` (confirmed: same fill/height/radius, only stretched) — no new component, it gets one
+`button.stories.tsx` story (`CTA`) and nothing more.
+
 ### Contract
 
 - **`variant`**: `default | secondary | outline | outlinePrimary | ghost | ghostPrimary | link | destructive` — default `default`
@@ -576,3 +585,161 @@ primitives):
 - Code Connect (`.figma.ts`) — same blocker as Button/Accordion (needs a Figma Organization plan)
 - actual implementation (`alert-dialog.tsx`, `alert-dialog.stories.tsx`) — this is the SPEC
   section only; no component code was written per instruction
+
+## Component — `FAB Button`
+
+Source: [`src/components/ui/fab.tsx`](src/components/ui/fab.tsx) ·
+stories: [`src/components/ui/fab.stories.tsx`](src/components/ui/fab.stories.tsx)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", frame **`3102:18442`**
+"FAB Button" on the `402:654` "Button" page. Three state symbols: **`3101:16053`** `State=Default`,
+**`3102:18441`** `State=Pressed`, **`3102:18440`** `State=Disabled` — each 56×56. Verified live via
+`get_design_context` on 2026-09-06.
+
+Figma's own component description: *"Floating action button — circular, icon-only primary action
+anchored above content. Variants — State: Default / Pressed / Disabled. Props: Icon (instance
+swap)."*
+
+Confirmed structural/token facts from the live pull:
+
+- 56×56 circle: `size-[56px]` → `size-[var(--height-56)]` (56px token, already used by Button's
+  `xl`), `rounded-[var(--rounded-full,9999px)]` → `rounded-full` (`--radius-full`)
+- fill `bg-[var(--primary,#d63f00)]` — the same brand token Button's `default` binds as
+  `--button-background`; use `bg-button-background` so it cascades identically per brand
+- icon colour `var(--button-foreground,#fff7ed)` → `text-button-foreground`
+- icon: a single 24×24 glyph (`size-[24px]`) centred — `[&_svg]:size-7` (this project's `size-7` =
+  24px; `size-4` = 12px is Button's base — same remapped-scale gotcha, resolve by pixel)
+- shadow: Figma `shadow-md` (`0 2px 4px -2px #0000001A, 0 4px 6px -1px #0000001A`) — Tailwind's
+  default `shadow-md`; heavier than Button's base `shadow-xs`, so the wrapper overrides it
+- `State`: `Default` (`opacity-100`) / `Pressed` (`opacity-80`) / `Disabled` (`opacity-60`) —
+  **opacity-only**, base colours unchanged — identical mechanism to Button, so `active:opacity-80`
+  / `disabled:opacity-60` are inherited from Button unchanged, nothing new to add
+- `p-[10px]` in the pull is an auto-layout artifact of centring a 24px glyph in a 56px box
+  (`items-center justify-center` already centres it); not reproduced as real padding
+
+### Contract
+
+No new dependency. `FAB Button` is a thin wrapper over `Button` — it fixes `size="icon"`,
+`variant="default"` and layers the circular geometry + heavier shadow on top via `className`, so
+every Button behaviour (focus-visible ring, `active:opacity-80`, `disabled:opacity-60`,
+`disabled:pointer-events-none`, transitions, `asChild`, `loading`) is inherited, not re-declared.
+
+| Part | Element | Notes |
+| --- | --- | --- |
+| `Fab` | `Button` (`<button>` or `Slot`) | forced `size="icon"` + `variant="default"`; adds `size-[var(--height-56)] rounded-full shadow-md [&_svg]:size-7`; `children` is the icon glyph |
+
+- no `variant` / `size` props — Figma shows exactly one look and one size
+- `disabled` → inherited faded + `pointer-events-none`; `loading` / `asChild` inherited from
+  `Button` (not in Figma, but free plumbing and consistent — same "code-only extension" note as
+  Button's own `loading`/`asChild`)
+- brand: `bg-button-background` / `text-button-foreground` cascade from `--primary` → theme- and
+  brand-agnostic, same as Button
+
+### Accessibility
+
+- icon-only: the consumer **must** pass an accessible name (`aria-label`) — documented in the
+  story and the prop JSDoc; there is no visible text
+- focus-visible ring (`ring-2 ring-ring`), disabled semantics, reduced-motion: all inherited from
+  `Button`, unchanged
+- fixed positioning (`fixed bottom-6 right-6` etc.) is the consumer's concern — `Fab` ships no
+  positioning, only the button itself (same "trigger placement is the consumer's job" line as
+  Alert Dialog)
+
+### Out of scope
+
+- a size scale or colour variants — Figma has one FAB
+- extended / labelled FAB (icon + text) — not in this Figma frame
+- fixed-position wrapper, speed-dial / FAB menu — consumer composition, not this component
+- Code Connect (`.figma.ts`) — same Figma-Org-plan blocker as every component so far
+- actual implementation is written in this same PR (unlike the SPEC-only sections above) — this
+  component ships with its `fab.tsx` + `fab.stories.tsx`
+
+## Component — `Toggle Group` (Figma "Icon Group")
+
+Source: [`src/components/ui/toggle-group.tsx`](src/components/ui/toggle-group.tsx) ·
+stories: [`src/components/ui/toggle-group.stories.tsx`](src/components/ui/toggle-group.stories.tsx)
+
+### Figma
+
+Design system: `figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW` "Shadcn UI", symbol **`3223:37201`**
+"Icon Group" on the `402:654` "Button" page — a `Slot` (id `3584:122`) holding four `Button`
+instances (`A` selected, `B` / `C` / `D` not). Verified live via `get_design_context` on
+2026-09-06.
+
+Figma's own component description: *"Row of grouped icon buttons."*
+
+**Name drift, resolved.** Figma calls it "Icon Group" and its blurb says "icon buttons", but the
+frame actually holds **text** buttons (`A`–`D`) and shows one filled + three neutral — the visual
+signature of a **single-select segmented control**. This project implements it as
+`ToggleGroup` / `ToggleGroupItem` (the shadcn/Radix name for exactly this control) and adds the
+selection semantics the Figma frame only implies. Same kind of Figma↔code drift already
+documented for Button ("Secondary" ≠ `secondary`).
+
+Confirmed structural/token facts from the live pull:
+
+- container: `flex items-center` row; children `flex-1` (equal width) with an 11px gap. 11px has
+  **no token** (`--space-3` = 8px, `--space-4` = 12px) and the `w-[370px]` / `px-[13px]` in the
+  pull are auto-layout artifacts of fitting four items into a fixed 370px frame — use `gap-4`
+  (12px, nearest real token; note `gap-2` in this project is `--space-2` = **4px**, the digit-≠-scale
+  gotcha again) and let width come from the consumer, same "frame-fit artifact, not the contract"
+  call as Alert Dialog's demo canvas
+- each item = a `Button`-shaped box: `h-[44px]` → `h-[var(--height-44)]`, `rounded-[var(--radius-8)]`
+  → `rounded-8`, `py-[var(--space-3,8px)]` → `py-3`, `text-[length:var(--font-size-sm)]` +
+  `font-[var(--font-weight-medium,500)]` + `leading-[var(--line-height-5,20px)]` → `text-sm
+  font-medium leading-5`. Shadow: Figma's `drop-shadow-[0px_1px_1px_...]` reports as "shadow-xs"
+  (0.1 alpha) — copy Button's explicit `shadow-[0_1px_2px_0_rgba(0,0,0,0.1)]`, because Tailwind's
+  `shadow-xs` utility is only 0.05 alpha (same reason Button hard-codes it). **No border** on
+  either state (unlike Button's `secondary`/`outline`)
+- **off** item: `bg-[var(--secondary,#f4f4f5)]` + `text-[var(--button-foreground-filled,#18181b)]`
+  — identical tokens to Button's `secondary` (Figma "Filled") variant
+- **on** item: `bg-[var(--button-background,#d63f00)]` + `text-[var(--button-foreground,#fff7ed)]`
+  — identical tokens to Button's `default` (Figma "Primary") variant; bind via
+  `data-[state=on]:bg-button-background data-[state=on]:text-button-foreground` so brand cascades
+- `tokens.css` has a `--toggle-background-on/off`, `--toggle-foreground-on/off`, `--toggle-border`
+  tier-3 set, but those bind `--muted` / `--background` (the greyer treatment of the standalone
+  shadcn **`Toggle`** button, not built here) and **do not match** this frame's primary-fill
+  selected state — deliberately not used; flagged, not invented from (same call as Alert's
+  leftover `success` tokens)
+- no `State` axis on "Icon Group" itself — its items are `Button` instances, so Pressed / Disabled
+  come from `Button`'s own opacity-only states
+
+### Contract
+
+New dependency: **`@radix-ui/react-toggle-group`** (`^1.1.19`) — same house pattern as Accordion
+(`@radix-ui/react-accordion`). Radix gives roving-tabindex focus, arrow-key navigation and the
+`radiogroup`/`radio` roles for a single-select control — the accessible behaviour of a segmented
+control, not worth hand-rolling.
+
+| Part | Element | Notes |
+| --- | --- | --- |
+| `ToggleGroup` | `ToggleGroupPrimitive.Root` | `flex items-center gap-4` + `[&>*]:flex-1`; forwards Radix `type` (`single` \| `multiple`), `value` / `defaultValue` / `onValueChange`, `disabled`, `orientation` |
+| `ToggleGroupItem` | `ToggleGroupPrimitive.Item` | one flat class list (no `cva` — it has no variants): `inline-flex items-center justify-center h-[var(--height-44)] rounded-8 px-4 py-3 text-sm font-medium leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.1)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 disabled:pointer-events-none` + off `bg-[var(--secondary)] text-[var(--button-foreground-filled)]` + `data-[state=on]:bg-button-background data-[state=on]:text-button-foreground` |
+
+- Radix `type` is required by Radix and not defaulted by us — the consumer picks `single` or
+  `multiple`; stories cover both, `single` (segmented control, the Figma case) is the primary example
+- `px-4` (12px), not Figma's arbitrary `px-[13px]`; `gap-4` (12px), not Figma's `11px` — nearest
+  real tokens, consistent with the "resolve by pixel to a real token" rule
+- brand-agnostic: on-state tokens cascade from `--primary`
+
+### Accessibility
+
+- Radix `Root` renders `role="group"`; with `type="single"` each `Item` is `role="radio"` with
+  `aria-checked`, `type="multiple"` → `aria-pressed` — do not hand-roll these
+- roving tabindex + Arrow-key movement between items is Radix default (`rovingFocus`), `loop` on
+- focus-visible ring (`ring-2 ring-ring`) on each item, matching Button / Accordion
+- `disabled` on `Root` or `Item` → `opacity-60` + `pointer-events-none`; selection is never
+  colour-only — the on item also carries `data-state="on"` for assistive tech
+- icon-only items (the Figma name notwithstanding, the frame uses text) would need a per-item
+  `aria-label` from the consumer — noted in the story
+
+### Out of scope
+
+- a standalone `Toggle` component (single on/off button, the `--toggle-*` tokens) — not in this
+  frame; separate backlog item
+- vertical orientation styling beyond what Radix `orientation` + flex give for free — Figma shows
+  one horizontal row
+- icon-swap plumbing / a dedicated icon slot — items take arbitrary children
+- Code Connect (`.figma.ts`) — same Figma-Org-plan blocker as every component so far
+- actual implementation ships in this same PR — `toggle-group.tsx` + `toggle-group.stories.tsx`

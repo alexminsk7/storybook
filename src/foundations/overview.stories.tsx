@@ -15,7 +15,9 @@ import {
 } from '../components/ui/alert-dialog'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Fab } from '../components/ui/fab'
 import { Input } from '../components/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group'
 
 /**
  * The library ships one Figma brand (orange). Each consuming app rebinds the
@@ -34,12 +36,20 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// Plain SVG icon — Alert takes no icon prop, see alert.stories.tsx.
+// Plain SVG icons — components here take no icon prop, see alert.stories.tsx / fab.stories.tsx.
 function CheckCircleIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <path d="m9 12 2 2 4-4" />
+    </svg>
+  )
+}
+
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" />
     </svg>
   )
 }
@@ -54,7 +64,16 @@ function Showcase() {
         <Button variant="ghostPrimary">Ghost</Button>
         <Button variant="link">Link</Button>
         <Button variant="destructive">Delete</Button>
+        <Fab aria-label="Create">
+          <PlusIcon />
+        </Fab>
       </div>
+      <ToggleGroup type="single" defaultValue="a" className="w-80">
+        <ToggleGroupItem value="a">A</ToggleGroupItem>
+        <ToggleGroupItem value="b">B</ToggleGroupItem>
+        <ToggleGroupItem value="c">C</ToggleGroupItem>
+        <ToggleGroupItem value="d">D</ToggleGroupItem>
+      </ToggleGroup>
       <Input placeholder="you@example.com" />
       <Alert className="w-80">
         <CheckCircleIcon />
