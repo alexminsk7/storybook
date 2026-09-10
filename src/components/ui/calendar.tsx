@@ -4,6 +4,12 @@ import { DayPicker, getDefaultClassNames, type DayButtonProps } from 'react-day-
 import { cn } from '../../lib/utils';
 import { Button, buttonVariants } from './button';
 
+/**
+ * Date grid on react-day-picker: single, multiple or range selection, optional month/year
+ * dropdown captions, custom cell size via `--cell-size`. Renders its own bordered surface;
+ * inside `PopoverContent` drop that chrome (see the DatePicker stories). Reconciled with the
+ * Figma Calendar page `73:3711` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Calendar.
+ */
 function Calendar({
   className,
   classNames,

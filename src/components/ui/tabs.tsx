@@ -3,6 +3,11 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 import { Tabs as TabsPrimitive } from "radix-ui"
 
+/**
+ * Switch between panels of related content: `TabsList` > `TabsTrigger`s, one `TabsContent`
+ * per `value`. Arrow-key navigation from Radix Tabs. Stock shadcn/ui; not yet reconciled
+ * with Figma.
+ */
 function Tabs({
   className,
   orientation = "horizontal",

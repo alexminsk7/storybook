@@ -40,6 +40,11 @@ function useCarousel() {
   return context
 }
 
+/**
+ * Horizontal slide carousel on Embla: `CarouselContent` > `CarouselItem`s, with
+ * `CarouselPrevious` / `CarouselNext` controls and an optional `setApi` for programmatic
+ * control. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Carousel({
   orientation = "horizontal",
   opts,

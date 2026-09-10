@@ -5,6 +5,10 @@ import { cn } from "@/lib/utils"
 import { CheckIcon } from "lucide-react"
 import { Checkbox as CheckboxPrimitive } from "radix-ui"
 
+/**
+ * Binary or indeterminate choice. Pair with `Label` via `id`/`htmlFor`. Stock shadcn/ui on
+ * Radix Checkbox; not yet reconciled with Figma.
+ */
 function Checkbox({
   className,
   ...props

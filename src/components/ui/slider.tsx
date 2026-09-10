@@ -2,6 +2,10 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Slider as SliderPrimitive } from "radix-ui"
 
+/**
+ * Pick one value or a range on a track: `defaultValue={[50]}` or `[25, 75]`, `min` / `max` /
+ * `step`. Keyboard control from Radix Slider. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Slider({
   className,
   defaultValue,

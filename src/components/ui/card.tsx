@@ -2,6 +2,12 @@ import * as React from 'react';
 
 import { cn } from '../../lib/utils';
 
+/**
+ * Surface that groups related content and actions. Compound parts — `CardHeader`,
+ * `CardTitle`, `CardDescription`, `CardContent`, `CardFooter` — each a thin wrapper that
+ * forwards `className`. No variants or sizes; rest state only (the design system defines no
+ * hover/active tokens for it). Reconciled with the Figma `Card` component; see SPEC.md § Card.
+ */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div

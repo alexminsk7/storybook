@@ -1,6 +1,10 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
+/**
+ * Multi-line text field with the same border/ring treatment as `Input`. Stock shadcn/ui;
+ * not yet reconciled with Figma.
+ */
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea

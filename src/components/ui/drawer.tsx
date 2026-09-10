@@ -4,6 +4,10 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Drawer as DrawerPrimitive } from "vaul"
 
+/**
+ * Bottom sheet that slides up from the edge and can be swiped away — the mobile counterpart
+ * of `Dialog` / `Sheet`. Built on Vaul. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Drawer({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {

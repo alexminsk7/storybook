@@ -147,6 +147,7 @@ export const Default: Story = {
 
 /** Figma 502:3314 — two months, label caption, highlighted span between start and end. */
 export const Range: Story = {
+  parameters: { docs: { description: { story: '`mode="range"` — two-ended selection with the in-between days highlighted.' } } },
   render: function RangeCalendar() {
     const [range, setRange] = React.useState<DateRange | undefined>(RANGE);
     return (
@@ -164,6 +165,7 @@ export const Range: Story = {
 
 /** Figma 502:3321 "Month and Year" — both dropdowns. */
 export const MonthAndYearSelector: Story = {
+  parameters: { docs: { description: { story: '`captionLayout="dropdown"` replaces the caption text with month and year pickers.' } } },
   render: () => <SingleCalendar captionLayout="dropdown" />,
 };
 
@@ -186,6 +188,7 @@ export const CustomCellSize: Story = {
 
 /** Weekends disabled — the `disabled` matcher, per SPEC's day-cell state table. */
 export const DisabledDates: Story = {
+  parameters: { docs: { description: { story: '`disabled` matcher — weekends here — greys out and blocks those days.' } } },
   render: () => (
     <Calendar
       mode="single"
@@ -205,7 +208,7 @@ export const WithoutOutsideDays: Story = {
 
 export const DatePicker: Story = {
   name: 'Date picker (Popover)',
-  parameters: { layout: 'padded' },
+  parameters: { layout: 'padded', docs: { description: { story: 'Calendar inside `PopoverContent`; the standalone border/shadow is stripped because the popover supplies the surface.' } } },
   render: () => (
     <div className="flex min-h-[26rem] items-start justify-center pt-4">
       <DatePickerDemo />
@@ -215,7 +218,7 @@ export const DatePicker: Story = {
 
 export const DateAndTimePicker: Story = {
   name: 'Date and time picker',
-  parameters: { layout: 'padded' },
+  parameters: { layout: 'padded', docs: { description: { story: 'Date picker plus a native `<input type="time">` for the time part.' } } },
   render: () => (
     <div className="flex min-h-[26rem] items-start justify-center pt-4">
       <DateTimePickerDemo />

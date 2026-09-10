@@ -5,6 +5,12 @@ import { Dialog as DialogPrimitive } from "radix-ui"
 
 import { Button } from "@/components/ui/button"
 
+/**
+ * Modal window layered over the page that blocks interaction with the rest of the UI until
+ * dismissed — focused tasks like editing a record. Use `AlertDialog` when a response is
+ * required, `Sheet` for side panels, `Drawer` on mobile. Compound parts on Radix Dialog with
+ * a built-in close button. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {

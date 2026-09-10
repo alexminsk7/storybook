@@ -4,6 +4,11 @@ import { cn } from "@/lib/utils"
 import { ChevronDownIcon } from "lucide-react"
 import { NavigationMenu as NavigationMenuPrimitive } from "radix-ui"
 
+/**
+ * Site-level navigation with optional mega-menu panels: `NavigationMenuList` >
+ * `NavigationMenuItem` with a `NavigationMenuTrigger` + `NavigationMenuContent`, or a plain
+ * `NavigationMenuLink`. Stock shadcn/ui on Radix NavigationMenu; not yet reconciled with Figma.
+ */
 function NavigationMenu({
   className,
   children,

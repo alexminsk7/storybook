@@ -11,6 +11,12 @@ import { cn } from '../../lib/utils';
 // (Button's base `[&_svg]:size-4` = 12px).
 export type FabProps = Omit<ButtonProps, 'variant' | 'size'>;
 
+/**
+ * Floating action button: circular, icon-only primary action, 56px with one 24px glyph.
+ * Wraps `Button` (`variant="default"`, `size="icon"`) so focus ring, pressed and disabled
+ * opacity are shared. Icon-only — always pass an `aria-label`. Reconciled with Figma node
+ * `3102:18442` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § FAB Button.
+ */
 const Fab = React.forwardRef<HTMLButtonElement, FabProps>(({ className, ...props }, ref) => (
   <Button
     ref={ref}

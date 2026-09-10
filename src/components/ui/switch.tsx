@@ -2,6 +2,10 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Switch as SwitchPrimitive } from "radix-ui"
 
+/**
+ * On/off toggle for a setting that applies immediately (use `Checkbox` inside forms). Pair
+ * with a `Label`. Stock shadcn/ui on Radix Switch; not yet reconciled with Figma.
+ */
 function Switch({
   className,
   size = "default",

@@ -89,6 +89,7 @@ function LinkComponentDemo() {
 }
 
 export const LinkComponent: Story = {
+  parameters: { docs: { description: { story: 'Figma `Type=link_component`: plain trail; the first link uses `asChild` to show router-`Link` compatibility.' } } },
   name: 'Link component',
   render: () => <LinkComponentDemo />,
 };
@@ -98,13 +99,14 @@ export const LinkComponentHover: Story = {
   // hover is a code-only addition on BreadcrumbLink (Figma shows no hover state — see SPEC.md).
   // userEvent.hover() doesn't move the real cursor, so :hover never engages; the pseudo-states
   // addon forces it directly, same approach as button.stories.tsx/input.stories.tsx.
-  parameters: { pseudo: { hover: true } },
+  parameters: { pseudo: { hover: true }, docs: { description: { story: 'Hover is a code-only addition on `BreadcrumbLink` — Figma shows no hover state.' } } },
   render: () => <LinkComponentDemo />,
 };
 
 // 2. Custom separator — same trail, default chevron-right swapped for a slash icon by passing
 // a child into BreadcrumbSeparator.
 export const CustomSeparator: Story = {
+  parameters: { docs: { description: { story: 'Figma `Type=custom_seperator`: pass any child to `BreadcrumbSeparator` to replace the chevron.' } } },
   render: () => (
     <Breadcrumb>
       <BreadcrumbList>
@@ -132,6 +134,7 @@ export const CustomSeparator: Story = {
 // from existing parts. No open/closed state or menu items — SPEC explicitly keeps that out of
 // scope until a real DropdownMenu component exists.
 export const Dropdown: Story = {
+  parameters: { docs: { description: { story: 'Figma `Type=dropdown`: the visual affordance only — no menu is wired until `DropdownMenu` is reconciled.' } } },
   render: () => (
     <Breadcrumb>
       <BreadcrumbList>
@@ -160,6 +163,7 @@ export const Dropdown: Story = {
 
 // 4. Collapsed — a bare BreadcrumbEllipsis stands in for truncated middle items.
 export const Collapsed: Story = {
+  parameters: { docs: { description: { story: 'Figma `Type=collapsed`: `BreadcrumbEllipsis` stands in for truncated middle items.' } } },
   render: () => (
     <Breadcrumb>
       <BreadcrumbList>
@@ -186,6 +190,7 @@ export const Collapsed: Story = {
 // 5. Responsive — same collapsed shape as above, with Figma's longer example labels to
 // demonstrate wrapping/longer content, not a sixth structural shape.
 export const Responsive: Story = {
+  parameters: { docs: { description: { story: 'Figma `Type=responsive`: the collapsed shape with longer labels to show wrapping.' } } },
   render: () => (
     <Breadcrumb>
       <BreadcrumbList>

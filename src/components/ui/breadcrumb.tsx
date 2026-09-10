@@ -3,6 +3,13 @@ import { Slot } from '@radix-ui/react-slot';
 
 import { cn } from '../../lib/utils';
 
+/**
+ * Hierarchical navigation trail: `nav[aria-label="breadcrumb"]` > `BreadcrumbList` >
+ * `BreadcrumbItem` with `BreadcrumbLink` (`asChild` for router links) or `BreadcrumbPage` for
+ * the current item; `BreadcrumbSeparator` / `BreadcrumbEllipsis` are decorative. Figma's five
+ * `Type` values are usage patterns of this one API, not a prop — see the stories. Reconciled
+ * with Figma component set `665:2036` (figma.com/design/ZqXhTqJIGE6YPgpdHiWNUW); contract in SPEC.md § Breadcrumb.
+ */
 const Breadcrumb = React.forwardRef<HTMLElement, React.ComponentPropsWithoutRef<'nav'>>(
   (props, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />
 );

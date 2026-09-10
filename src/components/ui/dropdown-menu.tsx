@@ -3,6 +3,11 @@ import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 
+/**
+ * Menu of actions opened from a trigger (button, avatar, "…"). Items, checkbox and radio
+ * items, labels, separators, shortcuts and nested submenus. Stock shadcn/ui on Radix
+ * DropdownMenu; not yet reconciled with Figma.
+ */
 function DropdownMenu({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {

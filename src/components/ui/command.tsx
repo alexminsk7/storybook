@@ -13,6 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+/**
+ * Command palette / fuzzy-searchable list on cmdk: `CommandInput`, `CommandList`,
+ * `CommandGroup`, `CommandItem`, `CommandEmpty`, `CommandShortcut`; `CommandDialog` wraps it
+ * in a `Dialog` for the ⌘K pattern. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function Command({
   className,
   ...props

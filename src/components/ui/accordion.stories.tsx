@@ -12,7 +12,9 @@ const meta = {
 } satisfies Meta<typeof Accordion>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+// Bare `StoryObj`: Radix Accordion's props are a `single | multiple` union with a required
+// `type`, which makes `StoryObj<typeof meta>` demand `args` a compound `render` can't express.
+type Story = StoryObj;
 
 // Neutral placeholder content — Figma's demo copy ("Product Information" / "Shipping
 // Details" / "Return Policy") is example-only per SPEC.md, not a fixed contract.
@@ -46,6 +48,7 @@ export const Default: Story = {
 };
 
 export const Open: Story = {
+  parameters: { docs: { description: { story: 'Figma `State=open`: the trigger loses its bottom border, which moves under the revealed content.' } } },
   name: 'Open (item one)',
   render: () => <AccordionDemo defaultValue="item-1" />,
 };

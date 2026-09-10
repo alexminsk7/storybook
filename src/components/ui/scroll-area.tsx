@@ -2,6 +2,11 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui"
 
+/**
+ * Scroll container with custom, cross-browser scrollbars (`ScrollBar` for the horizontal
+ * one). Give it a fixed height or width. Stock shadcn/ui on Radix ScrollArea; not yet
+ * reconciled with Figma.
+ */
 function ScrollArea({
   className,
   children,

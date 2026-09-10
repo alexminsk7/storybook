@@ -39,6 +39,7 @@ export const Default: Story = {
 };
 
 export const Open: Story = {
+  parameters: { docs: { description: { story: 'Rendered open so the portalled content is visible in the docs and in Chromatic.' } } },
   render: () => (
     <Frame>
       <Popover defaultOpen>
@@ -58,6 +59,7 @@ export const Open: Story = {
 
 /** `align="start"` — the alignment the date pickers use. */
 export const AlignStart: Story = {
+  parameters: { docs: { description: { story: '`align="start"` on `PopoverContent` — the panel\'s left edge lines up with the trigger.' } } },
   render: () => (
     <Frame>
       <Popover defaultOpen>
@@ -75,6 +77,7 @@ export const AlignStart: Story = {
 };
 
 export const Dark: Story = {
+  parameters: { docs: { description: { story: 'Pinned to the dark theme via globals.' } } },
   globals: { theme: 'dark', brand: 'tornado' },
   render: () => (
     <Frame>

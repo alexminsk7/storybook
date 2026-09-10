@@ -3,6 +3,11 @@ import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 import { Menubar as MenubarPrimitive } from "radix-ui"
 
+/**
+ * Desktop-app style horizontal menu bar (File / Edit / View) where each `MenubarMenu` opens a
+ * dropdown with the usual item vocabulary. Stock shadcn/ui on Radix Menubar; not yet
+ * reconciled with Figma.
+ */
 function Menubar({
   className,
   ...props

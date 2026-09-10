@@ -3,6 +3,10 @@ import { cn } from "@/lib/utils"
 import { CircleIcon } from "lucide-react"
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui"
 
+/**
+ * Single choice among several `RadioGroupItem`s; pair each item with a `Label`. Arrow-key
+ * navigation from Radix. Stock shadcn/ui; not yet reconciled with Figma.
+ */
 function RadioGroup({
   className,
   ...props

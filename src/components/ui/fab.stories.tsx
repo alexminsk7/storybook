@@ -39,10 +39,11 @@ export const Default: Story = {};
 
 // Figma State=Pressed — opacity-only, inherited from Button's `active:opacity-80`.
 export const Pressed: Story = {
-  parameters: { pseudo: { active: true } },
+  parameters: { pseudo: { active: true }, docs: { description: { story: 'Figma State=Pressed — opacity 80%, inherited from Button.' } } },
 };
 
 // Figma State=Disabled — opacity-only + pointer-events-none, inherited from Button.
 export const Disabled: Story = {
+  parameters: { docs: { description: { story: 'Figma State=Disabled — opacity 60% and `pointer-events: none`, inherited from Button.' } } },
   args: { disabled: true },
 };
