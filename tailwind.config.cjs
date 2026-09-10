@@ -5,6 +5,16 @@ module.exports = {
   content: ['./index.html', './src/**/*.{ts,tsx}', './.storybook/**/*.{ts,tsx}'],
   theme: {
     ...preset,
+    extend: {
+      ...preset.extend,
+      colors: {
+        ...preset.extend.colors,
+        // shadcn's bare `destructive` (bg-destructive on Button/Badge, text-destructive on Alert)
+        // is one solid red; the generated preset only has the -foreground/-background pair, and
+        // -background is a 10% tint — the solid one is -foreground (red-600 light / red-400 dark).
+        destructive: 'var(--destructive-foreground)',
+      },
+    },
     fontFamily: {
       ...preset.fontFamily,
       // tokens.css defines --font-family-sans with no fallback list; without one, an

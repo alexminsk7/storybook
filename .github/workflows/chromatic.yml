@@ -2,9 +2,9 @@ name: Chromatic
 
 on:
   push:
-    branches: [main, feat/capstone]
+    branches: [main]
   pull_request:
-    branches: [main, feat/capstone]
+    branches: [main]
 
 jobs:
   chromatic:
